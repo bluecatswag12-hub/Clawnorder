@@ -66,10 +66,15 @@ Example: 2222 = 200 × 2 = 400, 22222 = 200 × 4 = 800
 - [x] Progress bars toward win threshold
 - [x] Haptic feedback
 - [x] Backend API for score validation, game history, stats, leaderboard
+- [x] **Daily Leaderboard** - Shows today's wins & points, resets at midnight UTC
+- [x] **All-Time Leaderboard** - Shows cumulative wins & total points
+- [x] **Challenge Friends (Share)** - Share game results via native share sheet
+- [x] **Auto-save Games** - Games auto-save to backend on win for leaderboard tracking
+- [x] **Leaderboard Screen** - Accessible from home, Daily/All-Time tabs, pull-to-refresh
 
 ## Future Enhancements
 - [ ] Online multiplayer with room codes (Socket.IO)
 - [ ] Sound effects
-- [ ] Game statistics dashboard
 - [ ] AI opponent mode
 - [ ] Tournament mode
+- [ ] Push notifications for daily leaderboard results
