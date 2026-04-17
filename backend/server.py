@@ -72,48 +72,68 @@ def calculate_selected_score(selected_dice: List[int]) -> dict:
     breakdown = []
     used = [False] * len(selected_dice)
 
-    # Check for straights (exact match only)
-    sorted_str = ''.join(map(str, sorted_dice))
+    # Check for full straight 123456 first (exact 6 unique dice)
+    unique_sorted = sorted(set(sorted_dice))
+    unique_str = ''.join(map(str, unique_sorted))
 
-    if sorted_str == '123456' and len(selected_dice) == 6:
+    if unique_str == '123456' and len(selected_dice) == 6:
         return {'score': 1500, 'breakdown': ['123456 = 1500 points'], 'is_valid': True}
 
-    if sorted_str == '12345' and len(selected_dice) == 5:
-        return {'score': 500, 'breakdown': ['12345 = 500 points'], 'is_valid': True}
+    # Check if dice CONTAIN a straight (12345 or 23456) with possible leftover scoring dice
+    straight_found = False
 
-    if sorted_str == '23456' and len(selected_dice) == 5:
-        return {'score': 750, 'breakdown': ['23456 = 750 points'], 'is_valid': True}
-
-    # Check for sets with exponential multipliers
-    for num, count in counts.items():
-        if count >= 3:
-            if num == 1:
-                base_score = 1000
-                set_name = '111'
-            elif num == 5:
-                base_score = 500
-                set_name = '555'
-            else:
-                base_score = num * 100
-                set_name = str(num) * 3
-
-            extra = count - 3
-            multiplier = int(math.pow(2, extra))
-            final_score = base_score * multiplier
-
-            score += final_score
-            if multiplier > 1:
-                breakdown.append(f'{str(num) * count} = {base_score} x {multiplier} = {final_score} points')
-            else:
-                breakdown.append(f'{set_name} = {final_score} points')
-
-            found = 0
+    if all(x in unique_sorted for x in [1, 2, 3, 4, 5]):
+        # 12345 straight found
+        score += 500
+        breakdown.append('12345 = 500 points')
+        straight_found = True
+        for needed in [1, 2, 3, 4, 5]:
             for i, val in enumerate(selected_dice):
-                if val == num and not used[i] and found < count:
+                if val == needed and not used[i]:
                     used[i] = True
-                    found += 1
+                    break
+    elif all(x in unique_sorted for x in [2, 3, 4, 5, 6]):
+        # 23456 straight found
+        score += 750
+        breakdown.append('23456 = 750 points')
+        straight_found = True
+        for needed in [2, 3, 4, 5, 6]:
+            for i, val in enumerate(selected_dice):
+                if val == needed and not used[i]:
+                    used[i] = True
+                    break
 
-    # Individual 1s and 5s
+    if not straight_found:
+        # Check for sets with exponential multipliers
+        for num, count in counts.items():
+            if count >= 3:
+                if num == 1:
+                    base_score = 1000
+                    set_name = '111'
+                elif num == 5:
+                    base_score = 500
+                    set_name = '555'
+                else:
+                    base_score = num * 100
+                    set_name = str(num) * 3
+
+                extra = count - 3
+                multiplier = int(math.pow(2, extra))
+                final_score = base_score * multiplier
+
+                score += final_score
+                if multiplier > 1:
+                    breakdown.append(f'{str(num) * count} = {base_score} x {multiplier} = {final_score} points')
+                else:
+                    breakdown.append(f'{set_name} = {final_score} points')
+
+                found = 0
+                for i, val in enumerate(selected_dice):
+                    if val == num and not used[i] and found < count:
+                        used[i] = True
+                        found += 1
+
+    # Individual 1s and 5s (not already used by straight or set)
     for i, val in enumerate(selected_dice):
         if used[i]:
             continue

@@ -37,76 +37,83 @@ export function calculateSelectedScore(selectedDice: number[]): ScoreResult {
   const breakdown: string[] = [];
   const used = new Array(selectedDice.length).fill(false);
 
-  // Check for straights first (must use exact dice, no extras)
-  const sortedStr = sorted.join('');
-  
-  if (sortedStr === '123456' && selectedDice.length === 6) {
+  // Check for full straight 123456 first (exact 6 unique dice)
+  const uniqueSorted = Array.from(new Set(sorted)).sort((a, b) => a - b);
+  const uniqueStr = uniqueSorted.join('');
+
+  if (uniqueStr === '123456' && selectedDice.length === 6) {
     return {
       score: 1500,
       breakdown: ['123456 = 1500 points'],
       isValid: true
     };
   }
-  
-  if (sortedStr === '12345' && selectedDice.length === 5) {
-    return {
-      score: 500,
-      breakdown: ['12345 = 500 points'],
-      isValid: true
-    };
-  }
-  
-  if (sortedStr === '23456' && selectedDice.length === 5) {
-    return {
-      score: 750,
-      breakdown: ['23456 = 750 points'],
-      isValid: true
-    };
-  }
 
-  // Check for sets of same number with exponential multipliers
-  Object.keys(counts).forEach(key => {
-    const num = parseInt(key);
-    const count = counts[num];
-    
-    if (count >= 3) {
-      let baseScore = 0;
-      let setName = '';
-      
-      if (num === 1) {
-        baseScore = 1000;
-        setName = '111';
-      } else if (num === 5) {
-        baseScore = 500;
-        setName = '555';
-      } else {
-        baseScore = num * 100;
-        setName = `${num}${num}${num}`;
-      }
-      
-      // Calculate multiplier: each die beyond 3 doubles the score
-      // 3 dice = x1, 4 dice = x2, 5 dice = x4, 6 dice = x8
-      const extraDice = count - 3;
-      const multiplier = Math.pow(2, extraDice);
-      const finalScore = baseScore * multiplier;
-      
-      score += finalScore;
-      
-      if (multiplier > 1) {
-        breakdown.push(`${num.toString().repeat(count)} = ${baseScore} × ${multiplier} = ${finalScore} points`);
-      } else {
-        breakdown.push(`${setName} = ${finalScore} points`);
-      }
-      
-      // Mark these dice as used
-      for (let i = 0; i < count; i++) {
-        const idx = selectedDice.findIndex((v, idx) => v === num && !used[idx]);
-        if (idx !== -1) used[idx] = true;
-      }
+  // Check if dice CONTAIN a straight (12345 or 23456) with possible leftover scoring dice
+  let straightFound = false;
+
+  if (uniqueStr.includes('12345') || (uniqueSorted.includes(1) && uniqueSorted.includes(2) && uniqueSorted.includes(3) && uniqueSorted.includes(4) && uniqueSorted.includes(5))) {
+    // 12345 straight found — mark one of each as used
+    score += 500;
+    breakdown.push('12345 = 500 points');
+    straightFound = true;
+    for (const needed of [1, 2, 3, 4, 5]) {
+      const idx = selectedDice.findIndex((v, i) => v === needed && !used[i]);
+      if (idx !== -1) used[idx] = true;
     }
-  });
+  } else if (uniqueStr.includes('23456') || (uniqueSorted.includes(2) && uniqueSorted.includes(3) && uniqueSorted.includes(4) && uniqueSorted.includes(5) && uniqueSorted.includes(6))) {
+    // 23456 straight found
+    score += 750;
+    breakdown.push('23456 = 750 points');
+    straightFound = true;
+    for (const needed of [2, 3, 4, 5, 6]) {
+      const idx = selectedDice.findIndex((v, i) => v === needed && !used[i]);
+      if (idx !== -1) used[idx] = true;
+    }
+  }
 
-  // Check for individual 1s and 5s (not part of a set)
+  if (!straightFound) {
+    // Check for sets of same number with exponential multipliers
+    Object.keys(counts).forEach(key => {
+      const num = parseInt(key);
+      const count = counts[num];
+      
+      if (count >= 3) {
+        let baseScore = 0;
+        let setName = '';
+        
+        if (num === 1) {
+          baseScore = 1000;
+          setName = '111';
+        } else if (num === 5) {
+          baseScore = 500;
+          setName = '555';
+        } else {
+          baseScore = num * 100;
+          setName = `${num}${num}${num}`;
+        }
+        
+        const extraDice = count - 3;
+        const multiplier = Math.pow(2, extraDice);
+        const finalScore = baseScore * multiplier;
+        
+        score += finalScore;
+        
+        if (multiplier > 1) {
+          breakdown.push(`${num.toString().repeat(count)} = ${baseScore} × ${multiplier} = ${finalScore} points`);
+        } else {
+          breakdown.push(`${setName} = ${finalScore} points`);
+        }
+        
+        for (let i = 0; i < count; i++) {
+          const idx = selectedDice.findIndex((v, idx) => v === num && !used[idx]);
+          if (idx !== -1) used[idx] = true;
+        }
+      }
+    });
+  }
+
+  // Check for individual 1s and 5s (not already used by straight or set)
   selectedDice.forEach((val, idx) => {
     if (used[idx]) return;
     
