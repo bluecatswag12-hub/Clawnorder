@@ -224,6 +224,75 @@ async def get_leaderboard():
     leaders = await db.player_stats.find({}, {"_id": 0}).sort('games_won', -1).to_list(20)
     return leaders
 
+@api_router.get("/leaderboard/daily")
+async def get_daily_leaderboard():
+    """Get today's leaderboard - wins and points accumulated today only"""
+    today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+    today_str = today_start.isoformat()
+
+    # Aggregate today's games from game_history
+    pipeline = [
+        {"$match": {"created_at": {"$gte": today_str}}},
+        {"$facet": {
+            "player1_stats": [
+                {"$group": {
+                    "_id": "$player1_name",
+                    "games_played": {"$sum": 1},
+                    "total_points": {"$sum": "$player1_score"},
+                    "wins": {"$sum": {"$cond": [{"$eq": ["$winner_name", "$player1_name"]}, 1, 0]}},
+                    "highest_score": {"$max": "$player1_score"},
+                }}
+            ],
+            "player2_stats": [
+                {"$group": {
+                    "_id": "$player2_name",
+                    "games_played": {"$sum": 1},
+                    "total_points": {"$sum": "$player2_score"},
+                    "wins": {"$sum": {"$cond": [{"$eq": ["$winner_name", "$player2_name"]}, 1, 0]}},
+                    "highest_score": {"$max": "$player2_score"},
+                }}
+            ]
+        }}
+    ]
+
+    result = await db.game_history.aggregate(pipeline).to_list(1)
+
+    # Merge both player stat lists
+    player_map = {}
+    if result:
+        for stats_list in [result[0].get('player1_stats', []), result[0].get('player2_stats', [])]:
+            for entry in stats_list:
+                name = entry['_id']
+                if name in player_map:
+                    player_map[name]['games_played'] += entry['games_played']
+                    player_map[name]['total_points'] += entry['total_points']
+                    player_map[name]['wins'] += entry['wins']
+                    player_map[name]['highest_score'] = max(player_map[name]['highest_score'], entry['highest_score'])
+                else:
+                    player_map[name] = {
+                        'player_name': name,
+                        'games_played': entry['games_played'],
+                        'total_points': entry['total_points'],
+                        'wins': entry['wins'],
+                        'highest_score': entry['highest_score'],
+                    }
+
+    # Sort by wins desc, then total_points desc
+    leaders = sorted(player_map.values(), key=lambda x: (-x['wins'], -x['total_points']))
+    return {
+        'date': today_start.strftime('%Y-%m-%d'),
+        'leaderboard': leaders[:20],
+        'total_games_today': sum(p['games_played'] for p in player_map.values()) // 2 if player_map else 0,
+    }
+
+@api_router.get("/leaderboard/alltime")
+async def get_alltime_leaderboard():
+    """Get all-time leaderboard sorted by wins then total points"""
+    leaders = await db.player_stats.find({}, {"_id": 0}).sort([('games_won', -1), ('total_points', -1)]).to_list(20)
+    return {
+        'leaderboard': leaders,
+    }
+
 # Score validation endpoint for testing
 @api_router.post("/validate-score")
 async def validate_score(data: dict):

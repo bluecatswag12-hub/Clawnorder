@@ -180,7 +180,6 @@ export default function Index() {
               testID="online-game-btn"
               style={[styles.gameBtn, { backgroundColor: '#333' }]}
               onPress={startOnlineGame}
-              activeOpacity={0.8}
             >
               <Ionicons name="globe" size={26} color="#fff" />
               <View style={styles.btnTextCol}>
@@ -188,6 +187,19 @@ export default function Index() {
                 <Text style={styles.btnSub}>Room code</Text>
               </View>
               <Ionicons name="chevron-forward" size={24} color="rgba(255,255,255,0.6)" />
+            </Pressable>
+
+            <Pressable
+              testID="leaderboard-btn"
+              style={[styles.gameBtn, { backgroundColor: '#1a1a2e', borderWidth: 1, borderColor: '#e91e63' }]}
+              onPress={() => router.push('/leaderboard')}
+            >
+              <Ionicons name="trophy" size={26} color="#e91e63" />
+              <View style={styles.btnTextCol}>
+                <Text style={styles.btnTitle}>Leaderboard</Text>
+                <Text style={[styles.btnSub, { color: '#e91e63' }]}>Daily & All-Time</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={24} color="#e91e6366" />
             </Pressable>
           </View>
         </ScrollView>

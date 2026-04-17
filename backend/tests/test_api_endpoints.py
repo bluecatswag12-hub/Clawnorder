@@ -330,3 +330,89 @@ class TestGameHistory:
         data = response.json()
         assert isinstance(data, list)
         print(f"✓ Leaderboard retrieved: {len(data)} players")
+
+
+class TestLeaderboards:
+    """Test daily and all-time leaderboard endpoints"""
+
+    def test_get_daily_leaderboard(self, api_client):
+        """Test GET /api/leaderboard/daily returns today's leaderboard"""
+        response = api_client.get(f"{BASE_URL}/api/leaderboard/daily")
+        assert response.status_code == 200
+        
+        data = response.json()
+        assert "date" in data
+        assert "leaderboard" in data
+        assert "total_games_today" in data
+        assert isinstance(data["leaderboard"], list)
+        
+        # Verify leaderboard entries have correct structure
+        if len(data["leaderboard"]) > 0:
+            entry = data["leaderboard"][0]
+            assert "player_name" in entry
+            assert "wins" in entry
+            assert "total_points" in entry
+            assert "games_played" in entry
+            assert "highest_score" in entry
+        
+        print(f"✓ Daily leaderboard retrieved: {len(data['leaderboard'])} players, {data['total_games_today']} games today")
+
+    def test_get_alltime_leaderboard(self, api_client):
+        """Test GET /api/leaderboard/alltime returns all-time leaderboard"""
+        response = api_client.get(f"{BASE_URL}/api/leaderboard/alltime")
+        assert response.status_code == 200
+        
+        data = response.json()
+        assert "leaderboard" in data
+        assert isinstance(data["leaderboard"], list)
+        
+        # Verify leaderboard entries have correct structure
+        if len(data["leaderboard"]) > 0:
+            entry = data["leaderboard"][0]
+            assert "player_name" in entry
+            assert "games_won" in entry
+            assert "total_points" in entry
+            assert "games_played" in entry
+            assert "highest_score" in entry
+        
+        print(f"✓ All-time leaderboard retrieved: {len(data['leaderboard'])} players")
+
+    def test_daily_leaderboard_sorting(self, api_client):
+        """Test daily leaderboard is sorted by wins then points"""
+        response = api_client.get(f"{BASE_URL}/api/leaderboard/daily")
+        assert response.status_code == 200
+        
+        data = response.json()
+        leaderboard = data["leaderboard"]
+        
+        # Verify sorting: wins desc, then total_points desc
+        if len(leaderboard) > 1:
+            for i in range(len(leaderboard) - 1):
+                current = leaderboard[i]
+                next_entry = leaderboard[i + 1]
+                
+                # Either current has more wins, or same wins but more points
+                assert (current["wins"] > next_entry["wins"]) or \
+                       (current["wins"] == next_entry["wins"] and current["total_points"] >= next_entry["total_points"])
+        
+        print(f"✓ Daily leaderboard sorting verified")
+
+    def test_alltime_leaderboard_sorting(self, api_client):
+        """Test all-time leaderboard is sorted by wins then points"""
+        response = api_client.get(f"{BASE_URL}/api/leaderboard/alltime")
+        assert response.status_code == 200
+        
+        data = response.json()
+        leaderboard = data["leaderboard"]
+        
+        # Verify sorting: games_won desc, then total_points desc
+        if len(leaderboard) > 1:
+            for i in range(len(leaderboard) - 1):
+                current = leaderboard[i]
+                next_entry = leaderboard[i + 1]
+                
+                # Either current has more wins, or same wins but more points
+                assert (current["games_won"] > next_entry["games_won"]) or \
+                       (current["games_won"] == next_entry["games_won"] and current["total_points"] >= next_entry["total_points"])
+        
+        print(f"✓ All-time leaderboard sorting verified")

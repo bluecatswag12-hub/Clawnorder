@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -9,7 +9,7 @@ import {
   Alert,
 } from 'react-native';
 import { router } from 'expo-router';
-import { useGameStore, WIN_THRESHOLDS } from '../store/gameStore';
+import { useGameStore, WIN_THRESHOLDS, WIN_MODE_LABELS } from '../store/gameStore';
 import { Dice } from '../components/Dice';
 import { ScoreBoard } from '../components/ScoreBoard';
 import { WinnerModal } from '../components/WinnerModal';
@@ -90,6 +90,39 @@ export default function Game() {
     resetGame();
     router.replace('/');
   };
+
+  const handleViewLeaderboard = () => {
+    resetGame();
+    router.replace('/leaderboard');
+  };
+
+  // Auto-save game when there's a winner
+  const savedRef = useRef(false);
+  useEffect(() => {
+    if (winner && !savedRef.current) {
+      savedRef.current = true;
+      const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
+      const winnerPlayer = players.find(p => p.name === winner);
+      const loserPlayer = players.find(p => p.name !== winner);
+      if (winnerPlayer && loserPlayer) {
+        fetch(`${BACKEND_URL}/api/games/save`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            player1_name: players[0].name,
+            player2_name: players[1].name,
+            player1_score: players[0].totalScore,
+            player2_score: players[1].totalScore,
+            winner_name: winner,
+            win_mode: winMode,
+          }),
+        }).catch(e => console.error('Failed to save game:', e));
+      }
+    }
+    if (!winner) {
+      savedRef.current = false;
+    }
+  }, [winner]);
 
   const handleQuit = () => {
     Alert.alert('Quit Game', 'Progress will be lost.', [
@@ -313,8 +346,12 @@ export default function Game() {
         visible={!!winner}
         winnerName={winner || ''}
         winMode={winMode}
+        winnerScore={players.find(p => p.name === winner)?.totalScore || 0}
+        loserName={players.find(p => p.name !== winner)?.name || ''}
+        loserScore={players.find(p => p.name !== winner)?.totalScore || 0}
         onPlayAgain={handlePlayAgain}
         onBackToMenu={handleBackToMenu}
+        onViewLeaderboard={handleViewLeaderboard}
       />
     </SafeAreaView>
   );
