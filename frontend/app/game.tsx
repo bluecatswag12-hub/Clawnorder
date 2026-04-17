@@ -146,7 +146,7 @@ export default function Game() {
         <Pressable onPress={handleQuit} style={styles.headerBtn} testID="quit-btn">
           <Ionicons name="close" size={26} color="#fff" />
         </Pressable>
-        <Text style={styles.headerTitle}>DICE RUSH</Text>
+        <Text style={styles.headerTitle}>CLAW & ORDER</Text>
         <View style={styles.headerBtn} />
       </View>
 

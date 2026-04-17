@@ -159,7 +159,7 @@ def generate_room_code() -> str:
 # API Routes
 @api_router.get("/")
 async def root():
-    return {"message": "Dice Rush API", "version": "2.0"}
+    return {"message": "Claw & Order: Dice Unit API", "version": "2.0"}
 
 @api_router.post("/status", response_model=StatusCheck)
 async def create_status_check(input: StatusCheckCreate):

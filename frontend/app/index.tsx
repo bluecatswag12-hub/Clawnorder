@@ -59,8 +59,8 @@ export default function Index() {
               <Ionicons name="cube" size={36} color="#2196F3" />
               <Ionicons name="cube" size={36} color="#4CAF50" />
             </View>
-            <Text style={styles.title}>DICE RUSH</Text>
-            <Text style={styles.subtitle}>Roll. Score. Win.</Text>
+            <Text style={styles.title}>CLAW & ORDER</Text>
+            <Text style={styles.subtitle}>Dice Unit</Text>
           </View>
 
           {/* Win Mode Selector */}

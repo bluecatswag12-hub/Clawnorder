@@ -1,7 +1,7 @@
-# Dice Rush - Product Requirements Document
+# Claw & Order: Dice Unit - Product Requirements Document
 
 ## Overview
-Dice Rush is a 2-player dice game mobile app built with React Native (Expo) where players roll 6 dice, choose which scoring dice to keep, and race to reach the winning score threshold first.
+Claw & Order: Dice Unit is a 2-player dice game mobile app built with React Native (Expo) where players roll 6 dice, choose which scoring dice to keep, and race to reach the winning score threshold first.
 
 ## Game Modes
 | Mode | Win Threshold | Difficulty |

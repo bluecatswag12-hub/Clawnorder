@@ -30,12 +30,12 @@ export const WinnerModal: React.FC<WinnerModalProps> = ({
   const modeName = WIN_MODE_LABELS[winMode];
 
   const handleShare = async () => {
-    const message = `🎲 DICE RUSH 🎲\n\n🏆 ${winnerName} wins in ${modeName} mode!\n\nFinal Score:\n✅ ${winnerName}: ${winnerScore} pts\n❌ ${loserName}: ${loserScore} pts\n\nTarget: ${threshold} pts\n\nThink you can beat them? Download Dice Rush and challenge your friends! 🔥`;
+    const message = `🎲 CLAW & ORDER: DICE UNIT 🎲\n\n🏆 ${winnerName} wins in ${modeName} mode!\n\nFinal Score:\n✅ ${winnerName}: ${winnerScore} pts\n❌ ${loserName}: ${loserScore} pts\n\nTarget: ${threshold} pts\n\nThink you can beat them? Download Claw & Order: Dice Unit and challenge your friends! 🔥`;
 
     try {
       await Share.share({
         message,
-        title: 'Dice Rush - Challenge Your Friends!',
+        title: 'Claw & Order: Dice Unit - Challenge Your Friends!',
       });
     } catch (e) {
       console.error('Share failed', e);

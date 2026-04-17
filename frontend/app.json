@@ -1,24 +1,28 @@
 {
   "expo": {
-    "name": "Dice Rush",
-    "slug": "dice-rush",
+    "name": "Claw & Order: Dice Unit",
+    "slug": "claw-and-order-dice-unit",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "dice-rush",
-    "userInterfaceStyle": "automatic",
+    "scheme": "claw-and-order",
+    "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
+      "bundleIdentifier": "com.clawandorder.diceunit",
+      "buildNumber": "1",
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "Save game screenshots",
         "NSMicrophoneUsageDescription": "Enable sound effects"
       }
     },
     "android": {
+      "package": "com.clawandorder.diceunit",
+      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#1a1a2e"
+        "backgroundColor": "#0d0d1a"
       },
       "edgeToEdgeEnabled": true,
       "permissions": [
@@ -38,12 +42,17 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#000"
+          "backgroundColor": "#0d0d1a"
         }
       ]
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": ""
+      }
     }
   }
 }
