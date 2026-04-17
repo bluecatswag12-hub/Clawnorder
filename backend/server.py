@@ -176,6 +176,308 @@ def generate_room_code() -> str:
         if code not in game_rooms:
             return code
 
+# ============ ONLINE MULTIPLAYER ROOM ENDPOINTS ============
+
+class CreateRoomRequest(BaseModel):
+    player_name: str
+    win_mode: str = 'ogs'
+
+class JoinRoomRequest(BaseModel):
+    room_code: str
+    player_name: str
+
+class RoomActionRequest(BaseModel):
+    player_id: str
+
+class SelectDiceRequest(BaseModel):
+    player_id: str
+    selected_indices: List[int]
+
+def create_room_state(room_code: str, player_name: str, win_mode: str, player_id: str) -> dict:
+    return {
+        'room_code': room_code,
+        'win_mode': win_mode,
+        'players': [
+            {'id': player_id, 'name': player_name, 'total_score': 0, 'current_turn_score': 0}
+        ],
+        'current_player_index': 0,
+        'dice_values': [],
+        'dice_count': 6,
+        'selected_dice': [],
+        'kept_dice': [],
+        'turn_phase': 'waiting',  # waiting, rolling, selecting, bust, hothand
+        'current_roll_score': 0,
+        'current_roll_breakdown': [],
+        'last_selection_score': 0,
+        'last_selection_breakdown': [],
+        'winner': None,
+        'has_rolled': False,
+        'created_at': datetime.now(timezone.utc).isoformat(),
+        'last_action_at': datetime.now(timezone.utc).isoformat(),
+    }
+
+def get_room_state_for_client(room: dict) -> dict:
+    """Return sanitized room state for the client"""
+    return {
+        'room_code': room['room_code'],
+        'win_mode': room['win_mode'],
+        'players': [
+            {'name': p['name'], 'totalScore': p['total_score'], 'currentTurnScore': p['current_turn_score']}
+            for p in room['players']
+        ],
+        'player_ids': [p['id'] for p in room['players']],
+        'currentPlayerIndex': room['current_player_index'],
+        'diceValues': room['dice_values'],
+        'diceCount': room['dice_count'],
+        'selectedDice': room['selected_dice'],
+        'keptDice': room['kept_dice'],
+        'turnPhase': room['turn_phase'],
+        'currentRollScore': room['current_roll_score'],
+        'currentRollBreakdown': room['current_roll_breakdown'],
+        'lastSelectionScore': room['last_selection_score'],
+        'lastSelectionBreakdown': room['last_selection_breakdown'],
+        'winner': room['winner'],
+        'hasRolled': room['has_rolled'],
+        'lastActionAt': room['last_action_at'],
+    }
+
+WIN_THRESHOLDS = {'noobs': 1500, 'ogs': 3000, 'panthers': 5000}
+
+@api_router.post("/rooms/create")
+async def create_room(req: CreateRoomRequest):
+    room_code = generate_room_code()
+    player_id = str(uuid.uuid4())[:8]
+    room = create_room_state(room_code, req.player_name, req.win_mode, player_id)
+    game_rooms[room_code] = room
+    return {'room_code': room_code, 'player_id': player_id}
+
+@api_router.post("/rooms/join")
+async def join_room(req: JoinRoomRequest):
+    code = req.room_code.upper().strip()
+    if code not in game_rooms:
+        return {'error': 'Room not found'}
+    room = game_rooms[code]
+    if len(room['players']) >= 2:
+        return {'error': 'Room is full'}
+    player_id = str(uuid.uuid4())[:8]
+    room['players'].append({'id': player_id, 'name': req.player_name, 'total_score': 0, 'current_turn_score': 0})
+    room['turn_phase'] = 'rolling'
+    room['last_action_at'] = datetime.now(timezone.utc).isoformat()
+    return {'room_code': code, 'player_id': player_id}
+
+@api_router.get("/rooms/{room_code}/state")
+async def get_room_state(room_code: str):
+    code = room_code.upper().strip()
+    if code not in game_rooms:
+        return {'error': 'Room not found'}
+    return get_room_state_for_client(game_rooms[code])
+
+@api_router.post("/rooms/{room_code}/roll")
+async def room_roll_dice(room_code: str, req: RoomActionRequest):
+    code = room_code.upper().strip()
+    if code not in game_rooms:
+        return {'error': 'Room not found'}
+    room = game_rooms[code]
+    current = room['players'][room['current_player_index']]
+    if current['id'] != req.player_id:
+        return {'error': 'Not your turn'}
+    if room['turn_phase'] not in ('rolling',):
+        return {'error': f'Cannot roll in phase: {room["turn_phase"]}'}
+
+    dice = roll_dice(room['dice_count'])
+    is_bust = not has_any_scoring_dice(dice)
+
+    room['dice_values'] = dice
+    room['selected_dice'] = [False] * len(dice)
+    room['last_selection_score'] = 0
+    room['last_selection_breakdown'] = []
+    room['has_rolled'] = True
+    room['last_action_at'] = datetime.now(timezone.utc).isoformat()
+
+    if is_bust:
+        room['turn_phase'] = 'bust'
+        room['current_roll_score'] = 0
+        room['current_roll_breakdown'] = ['BUST! No scoring dice!']
+        current['current_turn_score'] = 0
+    else:
+        room['turn_phase'] = 'selecting'
+        room['current_roll_score'] = 0
+        room['current_roll_breakdown'] = []
+
+    return get_room_state_for_client(room)
+
+@api_router.post("/rooms/{room_code}/select")
+async def room_select_dice(room_code: str, req: SelectDiceRequest):
+    code = room_code.upper().strip()
+    if code not in game_rooms:
+        return {'error': 'Room not found'}
+    room = game_rooms[code]
+    current = room['players'][room['current_player_index']]
+    if current['id'] != req.player_id:
+        return {'error': 'Not your turn'}
+    if room['turn_phase'] != 'selecting':
+        return {'error': 'Cannot select dice now'}
+
+    new_selected = [False] * len(room['dice_values'])
+    for idx in req.selected_indices:
+        if 0 <= idx < len(new_selected):
+            new_selected[idx] = True
+
+    room['selected_dice'] = new_selected
+    selected_values = [room['dice_values'][i] for i in range(len(room['dice_values'])) if new_selected[i]]
+
+    if selected_values:
+        result = calculate_selected_score(selected_values)
+        room['last_selection_score'] = result['score'] if result['is_valid'] else 0
+        room['last_selection_breakdown'] = result['breakdown'] if result['is_valid'] else [result.get('error', 'Invalid')]
+    else:
+        room['last_selection_score'] = 0
+        room['last_selection_breakdown'] = []
+
+    room['last_action_at'] = datetime.now(timezone.utc).isoformat()
+    return get_room_state_for_client(room)
+
+@api_router.post("/rooms/{room_code}/confirm")
+async def room_confirm_selection(room_code: str, req: RoomActionRequest):
+    """Keep selected dice and prepare to roll remaining"""
+    code = room_code.upper().strip()
+    if code not in game_rooms:
+        return {'error': 'Room not found'}
+    room = game_rooms[code]
+    current = room['players'][room['current_player_index']]
+    if current['id'] != req.player_id:
+        return {'error': 'Not your turn'}
+    if room['turn_phase'] != 'selecting':
+        return {'error': 'Cannot confirm now'}
+
+    selected_values = [room['dice_values'][i] for i in range(len(room['dice_values'])) if room['selected_dice'][i]]
+    result = calculate_selected_score(selected_values)
+    if not result['is_valid']:
+        return {'error': 'Invalid selection'}
+
+    new_turn_score = current['current_turn_score'] + result['score']
+    current['current_turn_score'] = new_turn_score
+    remaining = [room['dice_values'][i] for i in range(len(room['dice_values'])) if not room['selected_dice'][i]]
+    room['kept_dice'] = room['kept_dice'] + selected_values
+    room['current_roll_score'] = result['score']
+    room['current_roll_breakdown'] = result['breakdown']
+    room['last_action_at'] = datetime.now(timezone.utc).isoformat()
+
+    if len(remaining) == 0:
+        # Hot hand!
+        room['turn_phase'] = 'hothand'
+        room['dice_count'] = 6
+        room['dice_values'] = []
+        room['selected_dice'] = []
+    else:
+        room['turn_phase'] = 'rolling'
+        room['dice_count'] = len(remaining)
+        room['dice_values'] = remaining
+        room['selected_dice'] = [False] * len(remaining)
+        room['last_selection_score'] = 0
+        room['last_selection_breakdown'] = []
+
+    return get_room_state_for_client(room)
+
+@api_router.post("/rooms/{room_code}/bank")
+async def room_bank_points(room_code: str, req: RoomActionRequest):
+    code = room_code.upper().strip()
+    if code not in game_rooms:
+        return {'error': 'Room not found'}
+    room = game_rooms[code]
+    current = room['players'][room['current_player_index']]
+    if current['id'] != req.player_id:
+        return {'error': 'Not your turn'}
+
+    new_total = current['total_score'] + current['current_turn_score']
+    current['total_score'] = new_total
+    current['current_turn_score'] = 0
+    threshold = WIN_THRESHOLDS.get(room['win_mode'], 3000)
+    room['last_action_at'] = datetime.now(timezone.utc).isoformat()
+
+    if new_total >= threshold:
+        room['winner'] = current['name']
+    else:
+        # Switch turn
+        room['current_player_index'] = 1 - room['current_player_index']
+        for p in room['players']:
+            p['current_turn_score'] = 0
+
+    # Reset dice state
+    room['dice_values'] = []
+    room['dice_count'] = 6
+    room['selected_dice'] = []
+    room['kept_dice'] = []
+    room['turn_phase'] = 'rolling'
+    room['current_roll_score'] = 0
+    room['current_roll_breakdown'] = []
+    room['last_selection_score'] = 0
+    room['last_selection_breakdown'] = []
+    room['has_rolled'] = False
+
+    return get_room_state_for_client(room)
+
+@api_router.post("/rooms/{room_code}/bank-continue")
+async def room_bank_and_continue(room_code: str, req: RoomActionRequest):
+    """Hot hand: bank points and continue with fresh 6 dice"""
+    code = room_code.upper().strip()
+    if code not in game_rooms:
+        return {'error': 'Room not found'}
+    room = game_rooms[code]
+    current = room['players'][room['current_player_index']]
+    if current['id'] != req.player_id:
+        return {'error': 'Not your turn'}
+
+    new_total = current['total_score'] + current['current_turn_score']
+    current['total_score'] = new_total
+    current['current_turn_score'] = 0
+    threshold = WIN_THRESHOLDS.get(room['win_mode'], 3000)
+    room['last_action_at'] = datetime.now(timezone.utc).isoformat()
+
+    if new_total >= threshold:
+        room['winner'] = current['name']
+
+    # Reset for fresh roll but SAME player continues
+    room['dice_values'] = []
+    room['dice_count'] = 6
+    room['selected_dice'] = []
+    room['kept_dice'] = []
+    room['turn_phase'] = 'rolling'
+    room['current_roll_score'] = 0
+    room['current_roll_breakdown'] = []
+    room['last_selection_score'] = 0
+    room['last_selection_breakdown'] = []
+    room['has_rolled'] = False
+
+    return get_room_state_for_client(room)
+
+@api_router.post("/rooms/{room_code}/bust-next")
+async def room_bust_next_turn(room_code: str, req: RoomActionRequest):
+    """After bust, switch to next player"""
+    code = room_code.upper().strip()
+    if code not in game_rooms:
+        return {'error': 'Room not found'}
+    room = game_rooms[code]
+
+    room['current_player_index'] = 1 - room['current_player_index']
+    for p in room['players']:
+        p['current_turn_score'] = 0
+    room['dice_values'] = []
+    room['dice_count'] = 6
+    room['selected_dice'] = []
+    room['kept_dice'] = []
+    room['turn_phase'] = 'rolling'
+    room['current_roll_score'] = 0
+    room['current_roll_breakdown'] = []
+    room['last_selection_score'] = 0
+    room['last_selection_breakdown'] = []
+    room['has_rolled'] = False
+    room['last_action_at'] = datetime.now(timezone.utc).isoformat()
+
+    return get_room_state_for_client(room)
+
+# ============ EXISTING API ROUTES ============
+
 # API Routes
 @api_router.get("/")
 async def root():
