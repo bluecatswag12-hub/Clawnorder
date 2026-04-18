@@ -56,6 +56,7 @@ export default function Game() {
     try {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     } catch (e) {}
+    sfxRoll();
     rollDiceAction();
   };
 
@@ -63,6 +64,7 @@ export default function Game() {
     try {
       Haptics.selectionAsync();
     } catch (e) {}
+    sfxSelect();
     toggleDieSelection(index);
   };
 
@@ -70,6 +72,7 @@ export default function Game() {
     try {
       await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     } catch (e) {}
+    sfxScore();
     confirmSelection();
   };
 
@@ -77,6 +80,7 @@ export default function Game() {
     try {
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch (e) {}
+    sfxScore();
     bankPoints();
   };
 
@@ -84,12 +88,13 @@ export default function Game() {
     try {
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch (e) {}
+    sfxScore();
     bankAndContinue();
   };
 
   const handlePlayAgain = () => resetGame();
 
-  const { stopMusic, playMusic } = useAudio();
+  const { stopMusic, playMusic, sfxRoll, sfxScore, sfxBust, sfxWin, sfxSelect } = useAudio();
 
   const handleBackToMenu = () => {
     resetGame();
@@ -156,13 +161,20 @@ export default function Game() {
     ]);
   };
 
+  // Bust SFX
   useEffect(() => {
     if (turnPhase === 'bust') {
-      try {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-      } catch (e) {}
+      sfxBust();
+      try { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error); } catch (e) {}
     }
   }, [turnPhase]);
+
+  // Win SFX
+  useEffect(() => {
+    if (winner) {
+      sfxWin();
+    }
+  }, [winner]);
 
   return (
     <SafeAreaView style={styles.container}>
