@@ -53,7 +53,7 @@ export default function OnlineGame() {
   const roomCode = params.roomCode || '';
   const playerId = params.playerId || '';
   const myIndex = parseInt(params.playerIndex || '0');
-  const { stopMusic: stopAll, playMusic: playTitle, playIngameMusic } = useAudio();
+  const { stopMusic: stopAll, playMusic: playTitle, playIngameMusic, sfxRoll, sfxSelect, sfxScore, sfxCursed, sfxVictory } = useAudio();
 
   const [state, setState] = useState<RoomState | null>(null);
   const [loading, setLoading] = useState(true);
@@ -88,20 +88,31 @@ export default function OnlineGame() {
     };
   }, [fetchState]);
 
-  // Auto-advance bust after 2 seconds
+  // Auto-advance bust after 2 seconds + play cursed SFX
   useEffect(() => {
-    if (state?.turnPhase === 'bust' && isMyTurn) {
-      const timer = setTimeout(async () => {
-        await fetch(`${BACKEND_URL}/api/rooms/${roomCode}/bust-next`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ player_id: playerId }),
-        });
-        fetchState();
-      }, 2000);
-      return () => clearTimeout(timer);
+    if (state?.turnPhase === 'bust') {
+      sfxCursed();
+      if (isMyTurn) {
+        const timer = setTimeout(async () => {
+          await fetch(`${BACKEND_URL}/api/rooms/${roomCode}/bust-next`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ player_id: playerId }),
+          });
+          fetchState();
+        }, 2000);
+        return () => clearTimeout(timer);
+      }
     }
   }, [state?.turnPhase]);
+
+  // Victory SFX
+  useEffect(() => {
+    if (state?.winner) {
+      stopAll();
+      sfxVictory();
+    }
+  }, [state?.winner]);
 
   if (loading || !state) {
     return (
@@ -146,12 +157,14 @@ export default function OnlineGame() {
 
   const handleRoll = () => {
     try { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); } catch (e) {}
+    sfxRoll();
     apiAction('roll');
   };
 
   const handleSelect = (index: number) => {
     if (!isMyTurn || state.turnPhase !== 'selecting') return;
     try { Haptics.selectionAsync(); } catch (e) {}
+    sfxSelect();
     const current = [...(state.selectedDice || [])];
     current[index] = !current[index];
     const indices = current.map((v, i) => v ? i : -1).filter(i => i >= 0);
@@ -160,16 +173,19 @@ export default function OnlineGame() {
 
   const handleConfirm = () => {
     try { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); } catch (e) {}
+    sfxScore();
     apiAction('confirm');
   };
 
   const handleBank = () => {
     try { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success); } catch (e) {}
+    sfxScore();
     apiAction('bank');
   };
 
   const handleBankContinue = () => {
     try { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success); } catch (e) {}
+    sfxScore();
     apiAction('bank-continue');
   };
 
@@ -295,8 +311,8 @@ export default function OnlineGame() {
           {state.turnPhase === 'bust' && (
             <View style={styles.bustBox}>
               <Ionicons name="close-circle" size={48} color="#FF5722" />
-              <Text style={styles.bustText}>BUST!</Text>
-              <Text style={styles.bustSub}>No scoring dice!</Text>
+              <Text style={styles.bustText}>CURSED!</Text>
+              <Text style={styles.bustSub}>No scoring bones!</Text>
             </View>
           )}
 
@@ -304,8 +320,8 @@ export default function OnlineGame() {
           {state.turnPhase === 'hothand' && (
             <View style={styles.hotBox}>
               <Ionicons name="flame" size={48} color="#ff9800" />
-              <Text style={styles.hotText}>HOT HAND!</Text>
-              <Text style={styles.hotSub}>All dice scored!</Text>
+              <Text style={styles.hotText}>DRAGON'S FAVOR!</Text>
+              <Text style={styles.hotSub}>All bones scored!</Text>
             </View>
           )}
 
@@ -331,12 +347,12 @@ export default function OnlineGame() {
                 disabled={!canConfirm || acting}
               >
                 <Ionicons name="checkmark" size={22} color="#fff" />
-                <Text style={styles.ctrlText}>Keep & Roll</Text>
+                <Text style={styles.ctrlText}>Keep & Cast</Text>
               </Pressable>
               {currentPlayer?.currentTurnScore > 0 && canConfirm && (
                 <Pressable testID="keep-bank-btn" style={[styles.ctrlBtn, styles.bankBtn]} onPress={() => { handleConfirm(); setTimeout(handleBank, 500); }}>
-                  <Ionicons name="wallet" size={22} color="#fff" />
-                  <Text style={styles.ctrlText}>Keep & Bank</Text>
+                  <Ionicons name="logo-bitcoin" size={22} color={styles.ctrlText.color} />
+                  <Text style={styles.ctrlText}>Keep & Hoard</Text>
                 </Pressable>
               )}
             </>
@@ -350,17 +366,17 @@ export default function OnlineGame() {
                 onPress={handleRoll}
                 disabled={!canRoll || acting}
               >
-                {acting ? <ActivityIndicator color="#fff" /> : (
+                {acting ? <ActivityIndicator color="#F4E3C5" /> : (
                   <>
-                    <Ionicons name="dice" size={22} color="#fff" />
-                    <Text style={styles.ctrlText}>{state.hasRolled ? `Roll ${state.diceCount}` : 'Roll Dice'}</Text>
+                    <Ionicons name="dice" size={22} color={styles.ctrlText.color} />
+                    <Text style={styles.ctrlText}>{state.hasRolled ? `Cast ${state.diceCount} Bones` : 'Cast the Bones'}</Text>
                   </>
                 )}
               </Pressable>
               {canBank && (
                 <Pressable testID="bank-btn" style={[styles.ctrlBtn, styles.bankBtn]} onPress={handleBank} disabled={acting}>
-                  <Ionicons name="wallet" size={22} color="#fff" />
-                  <Text style={styles.ctrlText}>Bank {currentPlayer?.currentTurnScore}</Text>
+                  <Ionicons name="logo-bitcoin" size={22} color={styles.ctrlText.color} />
+                  <Text style={styles.ctrlText}>Hoard {currentPlayer?.currentTurnScore}</Text>
                 </Pressable>
               )}
             </>
@@ -369,12 +385,12 @@ export default function OnlineGame() {
           {state.turnPhase === 'hothand' && (
             <>
               <Pressable testID="bank-continue-btn" style={[styles.ctrlBtn, styles.hotBtn]} onPress={handleBankContinue} disabled={acting}>
-                <Ionicons name="flame" size={22} color="#fff" />
-                <Text style={styles.ctrlText}>Bank & Continue</Text>
+                <Ionicons name="flame" size={22} color={styles.ctrlText.color} />
+                <Text style={styles.ctrlText}>Hoard & Continue</Text>
               </Pressable>
               <Pressable testID="bank-pass-btn" style={[styles.ctrlBtn, styles.bankBtn]} onPress={handleBank} disabled={acting}>
-                <Ionicons name="wallet" size={22} color="#fff" />
-                <Text style={styles.ctrlText}>Bank & Pass</Text>
+                <Ionicons name="logo-bitcoin" size={22} color={styles.ctrlText.color} />
+                <Text style={styles.ctrlText}>Hoard & Pass</Text>
               </Pressable>
             </>
           )}
@@ -406,63 +422,63 @@ export default function OnlineGame() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0d0d1a' },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 8, backgroundColor: '#111122', borderBottomWidth: 1, borderBottomColor: '#222' },
+  container: { flex: 1, backgroundColor: '#1A110A' },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 8, backgroundColor: '#2C1E16', borderBottomWidth: 1, borderBottomColor: '#3D2B1F' },
   headerBtn: { width: 44, height: 44, justifyContent: 'center', alignItems: 'center' },
-  headerTitle: { fontSize: 18, fontWeight: '800', color: '#fff', letterSpacing: 2 },
+  headerTitle: { fontSize: 18, fontWeight: '800', color: '#D4AF37', letterSpacing: 2 },
   onlineDot: { width: 44, height: 44, justifyContent: 'center', alignItems: 'center' },
   dot: { width: 12, height: 12, borderRadius: 6 },
   scrollContent: { flexGrow: 1, paddingBottom: 16 },
   loadingBox: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  loadingText: { fontSize: 16, color: '#555', marginTop: 12 },
+  loadingText: { fontSize: 16, color: '#AA7C11', marginTop: 12 },
   infoRow: { flexDirection: 'row', justifyContent: 'center', gap: 10, paddingTop: 8 },
-  modeTag: { backgroundColor: '#e91e63', paddingHorizontal: 12, paddingVertical: 3, borderRadius: 10 },
-  modeTagText: { color: '#fff', fontSize: 11, fontWeight: '700' },
-  roomTag: { backgroundColor: '#2a3f5f', paddingHorizontal: 12, paddingVertical: 3, borderRadius: 10 },
-  roomTagText: { color: '#fff', fontSize: 11, fontWeight: '700' },
+  modeTag: { backgroundColor: '#3D2B1F', paddingHorizontal: 12, paddingVertical: 3, borderRadius: 10, borderWidth: 1, borderColor: '#D4AF37' },
+  modeTagText: { color: '#D4AF37', fontSize: 11, fontWeight: '700' },
+  roomTag: { backgroundColor: '#3D2B1F', paddingHorizontal: 12, paddingVertical: 3, borderRadius: 10, borderWidth: 1, borderColor: '#5C3D2E' },
+  roomTagText: { color: '#F4E3C5', fontSize: 11, fontWeight: '700' },
   scoreRow: { flexDirection: 'row', gap: 8, paddingHorizontal: 12, paddingTop: 12 },
-  playerCard: { flex: 1, backgroundColor: '#16213e', borderRadius: 14, padding: 12, borderWidth: 2, borderColor: '#2a3f5f', alignItems: 'center' },
-  activeCard: { borderColor: '#2196F3', backgroundColor: '#1a2d4e' },
-  turnBadge: { position: 'absolute', top: -10, backgroundColor: '#4CAF50', paddingHorizontal: 10, paddingVertical: 2, borderRadius: 8 },
-  turnBadgeText: { color: '#fff', fontSize: 10, fontWeight: '800' },
-  playerName: { fontSize: 13, fontWeight: '700', color: '#aaa', marginTop: 4 },
-  myName: { color: '#2196F3' },
-  score: { fontSize: 28, fontWeight: '800', color: '#fff', marginVertical: 4 },
-  turnScoreBox: { backgroundColor: 'rgba(255,152,0,0.2)', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: '#ff9800' },
-  turnScoreText: { fontSize: 14, fontWeight: '700', color: '#ff9800' },
-  bar: { width: '100%', height: 5, backgroundColor: '#2a3f5f', borderRadius: 3, marginTop: 6, overflow: 'hidden' },
-  barFill: { height: '100%', backgroundColor: '#4CAF50', borderRadius: 3 },
-  turnLabel: { fontSize: 18, fontWeight: '700', color: '#fff', textAlign: 'center', paddingVertical: 10 },
+  playerCard: { flex: 1, backgroundColor: '#2C1E16', borderRadius: 14, padding: 12, borderWidth: 2, borderColor: '#3D2B1F', alignItems: 'center' },
+  activeCard: { borderColor: '#D4AF37', backgroundColor: '#3D2B1F' },
+  turnBadge: { position: 'absolute', top: -10, backgroundColor: '#2E7D32', paddingHorizontal: 10, paddingVertical: 2, borderRadius: 8 },
+  turnBadgeText: { color: '#F4E3C5', fontSize: 10, fontWeight: '800' },
+  playerName: { fontSize: 13, fontWeight: '700', color: '#C8AC70', marginTop: 4 },
+  myName: { color: '#D4AF37' },
+  score: { fontSize: 28, fontWeight: '800', color: '#D4AF37', marginVertical: 4 },
+  turnScoreBox: { backgroundColor: 'rgba(255,158,61,0.2)', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: '#FF9E3D' },
+  turnScoreText: { fontSize: 14, fontWeight: '700', color: '#FF9E3D' },
+  bar: { width: '100%', height: 5, backgroundColor: '#3D2B1F', borderRadius: 3, marginTop: 6, overflow: 'hidden' },
+  barFill: { height: '100%', backgroundColor: '#D4AF37', borderRadius: 3 },
+  turnLabel: { fontSize: 18, fontWeight: '700', color: '#F4E3C5', textAlign: 'center', paddingVertical: 10 },
   keptRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, gap: 6, marginBottom: 4 },
-  keptLabel: { fontSize: 12, color: '#666', fontWeight: '600' },
-  keptDie: { width: 26, height: 26, borderRadius: 5, backgroundColor: '#2a3f5f', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: '#4CAF50' },
-  keptDieText: { color: '#4CAF50', fontSize: 13, fontWeight: '700' },
+  keptLabel: { fontSize: 12, color: '#AA7C11', fontWeight: '600' },
+  keptDie: { width: 26, height: 26, borderRadius: 5, backgroundColor: '#3D2B1F', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: '#D4AF37' },
+  keptDieText: { color: '#D4AF37', fontSize: 13, fontWeight: '700' },
   diceArea: { alignItems: 'center', paddingVertical: 12, minHeight: 180 },
   prompt: { alignItems: 'center', paddingVertical: 30 },
-  promptText: { fontSize: 15, color: '#555', marginTop: 10, fontWeight: '600' },
+  promptText: { fontSize: 15, color: '#AA7C11', marginTop: 10, fontWeight: '600' },
   diceGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', maxWidth: 280, paddingVertical: 8 },
-  preview: { marginTop: 12, alignItems: 'center', backgroundColor: '#161625', paddingVertical: 10, paddingHorizontal: 20, borderRadius: 12, borderWidth: 1, borderColor: '#333', minWidth: 180 },
-  previewScore: { fontSize: 22, fontWeight: '800', color: '#4CAF50' },
-  previewBreak: { fontSize: 12, color: '#888', marginTop: 2 },
-  previewErr: { fontSize: 12, color: '#FF5722', fontWeight: '600' },
-  previewHint: { fontSize: 12, color: '#555', fontStyle: 'italic' },
-  rollInfo: { marginTop: 10, alignItems: 'center', backgroundColor: 'rgba(76,175,80,0.1)', paddingVertical: 6, paddingHorizontal: 16, borderRadius: 10, borderWidth: 1, borderColor: '#4CAF5044' },
-  rollInfoTitle: { fontSize: 15, fontWeight: '700', color: '#4CAF50' },
-  rollInfoBreak: { fontSize: 11, color: '#888', marginTop: 2 },
-  bustBox: { alignItems: 'center', marginTop: 12, padding: 20, backgroundColor: 'rgba(255,87,34,0.12)', borderRadius: 16, borderWidth: 2, borderColor: '#FF5722' },
-  bustText: { fontSize: 32, fontWeight: '900', color: '#FF5722', marginTop: 8 },
-  bustSub: { fontSize: 14, color: '#FF5722', marginTop: 4 },
-  hotBox: { alignItems: 'center', marginTop: 12, padding: 20, backgroundColor: 'rgba(255,152,0,0.12)', borderRadius: 16, borderWidth: 2, borderColor: '#ff9800' },
-  hotText: { fontSize: 32, fontWeight: '900', color: '#ff9800', marginTop: 8 },
-  hotSub: { fontSize: 14, color: '#ff9800', marginTop: 4 },
+  preview: { marginTop: 12, alignItems: 'center', backgroundColor: '#2C1E16', paddingVertical: 10, paddingHorizontal: 20, borderRadius: 12, borderWidth: 1, borderColor: '#3D2B1F', minWidth: 180 },
+  previewScore: { fontSize: 22, fontWeight: '800', color: '#D4AF37' },
+  previewBreak: { fontSize: 12, color: '#C8AC70', marginTop: 2 },
+  previewErr: { fontSize: 12, color: '#B22222', fontWeight: '600' },
+  previewHint: { fontSize: 12, color: '#AA7C11', fontStyle: 'italic' },
+  rollInfo: { marginTop: 10, alignItems: 'center', backgroundColor: 'rgba(212,175,55,0.1)', paddingVertical: 6, paddingHorizontal: 16, borderRadius: 10, borderWidth: 1, borderColor: '#D4AF3744' },
+  rollInfoTitle: { fontSize: 15, fontWeight: '700', color: '#D4AF37' },
+  rollInfoBreak: { fontSize: 11, color: '#C8AC70', marginTop: 2 },
+  bustBox: { alignItems: 'center', marginTop: 12, padding: 20, backgroundColor: 'rgba(139,0,0,0.15)', borderRadius: 16, borderWidth: 2, borderColor: '#8B0000' },
+  bustText: { fontSize: 32, fontWeight: '900', color: '#B22222', marginTop: 8 },
+  bustSub: { fontSize: 14, color: '#B22222', marginTop: 4 },
+  hotBox: { alignItems: 'center', marginTop: 12, padding: 20, backgroundColor: 'rgba(255,158,61,0.12)', borderRadius: 16, borderWidth: 2, borderColor: '#FF9E3D' },
+  hotText: { fontSize: 32, fontWeight: '900', color: '#FF9E3D', marginTop: 8 },
+  hotSub: { fontSize: 14, color: '#FF9E3D', marginTop: 4 },
   waitingIndicator: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 16 },
-  waitingText: { fontSize: 13, color: '#2196F3', fontWeight: '600' },
-  controls: { flexDirection: 'row', paddingHorizontal: 12, paddingVertical: 12, gap: 10, backgroundColor: '#111122', borderTopWidth: 1, borderTopColor: '#222' },
+  waitingText: { fontSize: 13, color: '#D4AF37', fontWeight: '600' },
+  controls: { flexDirection: 'row', paddingHorizontal: 12, paddingVertical: 12, gap: 10, backgroundColor: '#2C1E16', borderTopWidth: 1, borderTopColor: '#3D2B1F' },
   ctrlBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 16, borderRadius: 14, gap: 8 },
-  rollBtn: { backgroundColor: '#2196F3' },
-  bankBtn: { backgroundColor: '#4CAF50' },
-  confirmBtn: { backgroundColor: '#e91e63' },
-  hotBtn: { backgroundColor: '#ff9800' },
-  disabledBtn: { backgroundColor: '#333', opacity: 0.5 },
-  ctrlText: { fontSize: 14, fontWeight: '700', color: '#fff' },
+  rollBtn: { backgroundColor: '#FF9E3D' },
+  bankBtn: { backgroundColor: '#D4AF37' },
+  confirmBtn: { backgroundColor: '#8B0000' },
+  hotBtn: { backgroundColor: '#FF9E3D' },
+  disabledBtn: { backgroundColor: '#3D2B1F', opacity: 0.5 },
+  ctrlText: { fontSize: 14, fontWeight: '700', color: '#1A110A' },
 });
