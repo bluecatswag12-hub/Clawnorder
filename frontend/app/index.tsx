@@ -53,8 +53,8 @@ export default function Index() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         onScrollBeginDrag={ensureMusic}
+        onTouchStart={ensureMusic}
       >
-        <Pressable onPress={ensureMusic} style={{ flex: 1 }}>
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerTop}>
@@ -161,7 +161,6 @@ export default function Index() {
             <Ionicons name="chevron-forward" size={24} color="#80F2DD66" />
           </Pressable>
         </View>
-        </Pressable>
       </ScrollView>
     </SafeAreaView>
   );
