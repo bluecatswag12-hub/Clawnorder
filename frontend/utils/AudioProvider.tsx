@@ -7,7 +7,10 @@ const MUTE_KEY = '@audio_muted';
 // Audio URLs
 const TITLE_MUSIC_URL = 'https://customer-assets.emergentagent.com/job_dice-point-chase/artifacts/pjrz2luu_Game%20Title%20Music%20.mp3';
 const INGAME_MUSIC_URL = 'https://customer-assets.emergentagent.com/job_dice-point-chase/artifacts/4p1m1t64_In%20game%20music%20.mp3';
-const DICE_ROLL_URL = 'https://customer-assets.emergentagent.com/job_dice-point-chase/artifacts/epbjxtqc_Dice%20Roll%201%20.mp3';
+const DICE_ROLL_1_URL = 'https://customer-assets.emergentagent.com/job_dice-point-chase/artifacts/epbjxtqc_Dice%20Roll%201%20.mp3';
+const DICE_ROLL_2_URL = 'https://customer-assets.emergentagent.com/job_dice-point-chase/artifacts/txjd396b_Dice%20Roll%202.mp3';
+const DICE_ROLL_3_URL = 'https://customer-assets.emergentagent.com/job_dice-point-chase/artifacts/hk8euz1a_Dice%20Roll%203.mp3';
+const DICE_ROLL_4_URL = 'https://customer-assets.emergentagent.com/job_dice-point-chase/artifacts/j9379zoa_Dice%20Roll%204.mp3';
 const CURSED_URL = 'https://customer-assets.emergentagent.com/job_dice-point-chase/artifacts/xz5kwlz0_Cursed%20Music%20.mp3';
 const VICTORY_URL = 'https://customer-assets.emergentagent.com/job_dice-point-chase/artifacts/8wi7vx3x_Victory%20Music%20.mp3';
 
@@ -51,8 +54,11 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const titlePlayer = useAudioPlayer(TITLE_MUSIC_URL);
   const ingamePlayer = useAudioPlayer(INGAME_MUSIC_URL);
 
-  // SFX players
-  const rollPlayer = useAudioPlayer(DICE_ROLL_URL);
+  // SFX players - 4 dice roll variants
+  const roll1Player = useAudioPlayer(DICE_ROLL_1_URL);
+  const roll2Player = useAudioPlayer(DICE_ROLL_2_URL);
+  const roll3Player = useAudioPlayer(DICE_ROLL_3_URL);
+  const roll4Player = useAudioPlayer(DICE_ROLL_4_URL);
   const cursedPlayer = useAudioPlayer(CURSED_URL);
   const victoryPlayer = useAudioPlayer(VICTORY_URL);
   const scorePlayer = useAudioPlayer(SFX_SCORE);
@@ -122,7 +128,11 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
-  const sfxRoll = () => playSfx(rollPlayer);
+  const sfxRoll = () => {
+    const players = [roll1Player, roll2Player, roll3Player, roll4Player];
+    const pick = players[Math.floor(Math.random() * players.length)];
+    playSfx(pick);
+  };
   const sfxScore = () => playSfx(scorePlayer);
   const sfxCursed = () => playSfx(cursedPlayer);
   const sfxVictory = () => playSfx(victoryPlayer);
