@@ -1,0 +1,117 @@
+{
+  "theme": {
+    "mode": "dark",
+    "archetype": "Archetype 5 (Jewel & Luxury) + Archetype 1 (Organic & Earthy)",
+    "description": "A dark tavern theme combining moody, cinematic depth with organic, worn textures like wood and parchment. This fits the 'Full medieval / dark tavern' mobile game aesthetic."
+  },
+  "domain_context": "Gaming / Mobile Web App",
+  "terminology_renames": {
+    "Bank Points": "Hoard Gold",
+    "BUST": "CURSED!",
+    "Hot Hand": "Dragon's Favor",
+    "Roll Dice": "Cast the Bones",
+    "Win Modes": {
+      "Noobs": "Peasants (1500)",
+      "OGs": "Knights (3000)",
+      "Panthers": "Royals (5000)"
+    }
+  },
+  "colors": {
+    "background": {
+      "primary": "#1A110A", 
+      "secondary": "#2C1E16",
+      "overlay": "rgba(0, 0, 0, 0.7)"
+    },
+    "surface": {
+      "parchment": "#E8D3A2",
+      "parchment_dark": "#C8AC70",
+      "wood": "#3D2B1F"
+    },
+    "text": {
+      "primary": "#F4E3C5", 
+      "secondary": "#AA7C11",
+      "on_parchment": "#2C1E16",
+      "cursed": "#B22222"
+    },
+    "accents": {
+      "aged_gold": "#D4AF37",
+      "candlelight": "#FF9E3D",
+      "crimson": "#8B0000"
+    }
+  },
+  "typography": {
+    "font_families": {
+      "headings": "'Cinzel', 'Cormorant Garamond', serif",
+      "body": "'Lora', 'Merriweather', serif"
+    },
+    "hierarchy": {
+      "h1": "text-4xl sm:text-5xl font-bold tracking-tight text-aged_gold drop-shadow-md",
+      "h2": "text-2xl sm:text-3xl font-semibold text-candlelight",
+      "body": "text-base leading-relaxed text-text_primary",
+      "labels": "text-sm uppercase tracking-[0.2em] font-bold text-text_secondary"
+    }
+  },
+  "layout_and_spacing": {
+    "container": "w-full max-w-md mx-auto min-h-screen relative overflow-hidden bg-background_primary",
+    "padding": "p-4 sm:p-6",
+    "strategy": "Mobile-first responsive. Use vertical stacks and generous padding (p-6, p-8) for breathing room. Elements should float slightly using drop shadows."
+  },
+  "components": {
+    "buttons": {
+      "primary": "w-full bg-surface_wood border-2 border-accent_aged_gold text-accent_aged_gold hover:bg-accent_aged_gold hover:text-surface_wood font-bold uppercase tracking-wider rounded-md py-4 shadow-[0_4px_14px_rgba(212,175,55,0.2)] transition-all",
+      "secondary": "w-full bg-transparent border border-text_secondary text-text_secondary hover:bg-white/10 rounded-md py-3 transition-all",
+      "action_roll": "bg-accent_candlelight text-background_primary border-2 border-accent_candlelight hover:bg-accent_candlelight/80 hover:scale-105 rounded-full px-8 py-4 font-black shadow-[0_0_20px_rgba(255,158,61,0.4)] transition-all"
+    },
+    "cards": {
+      "tavern_card": "relative bg-surface_wood border border-accent_aged_gold/50 rounded-lg shadow-xl p-4 overflow-hidden",
+      "parchment_card": "relative bg-surface_parchment text-text_on_parchment border-2 border-surface_parchment_dark rounded-sm shadow-md p-6 font-serif"
+    },
+    "icons": {
+      "library": "lucide-react",
+      "usage": "Use Shield for scores, Swords for battles/online, Crown for leaderboards, Scroll for rules, Coins for shop."
+    }
+  },
+  "motion_and_interactions": {
+    "hover_states": "Buttons lift slightly (-translate-y-1) with an intensified gold drop-shadow.",
+    "active_states": "Buttons scale down (scale-95) to simulate a physical press.",
+    "transitions": "Smooth transitions on all color and transform changes (duration-200 ease-in-out)."
+  },
+  "screens": {
+    "Home": "Hero section with tavern background (dimmed overlay), prominent stylized game title, and a vertical stack of primary buttons navigating to core features.",
+    "Game": "Top area: Shield-shaped scoreboards for players. Middle area: Wooden 'table' for dice. Bottom area: Action buttons ('Cast the Bones', 'Hoard Gold'). Cursed state triggers crimson UI flashes.",
+    "Rules": "Presented inside a 'parchment_card' layout simulating a scroll. Text is rich and deeply indented.",
+    "LocalSetup": "Form placed on a wood-styled container. Inputs styled like recessed carvings or leather strips.",
+    "OnlineLobby": "List of active games in a 'tavern board' style list. Aged gold accents.",
+    "Leaderboard": "Rows of high scores. Top 3 rows highlighted with gold, silver, bronze respectively, and crown icons.",
+    "DiceShop": "Grid displaying 5 unlockable dice colorways with their purchase buttons (styled with coin icons).",
+    "WinnerModal": "Heavy glassmorphism/dark backdrop blur modal overlaying the game. Large victory text in Cinzel/Gold."
+  },
+  "media": {
+    "image_urls": {
+      "tavern_bg": {
+        "url": "https://images.pexels.com/photos/30482390/pexels-photo-30482390.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "category": "background",
+        "description": "Candlelit medieval tavern interior. Apply dark overlay (bg-black/70) for text readability."
+      },
+      "parchment_texture": {
+        "url": "https://images.pexels.com/photos/16557322/pexels-photo-16557322.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "category": "texture",
+        "description": "Old parchment texture to use as a background or blend-mode overlay for cards and rules."
+      },
+      "tavern_sign": {
+        "url": "https://images.pexels.com/photos/29823906/pexels-photo-29823906.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "category": "decorative",
+        "description": "Wooden tavern sign to use in the Dice Shop or Lobby as an accent graphic."
+      }
+    }
+  },
+  "instructions_to_main_agent": [
+    "CRITICAL: Replace all text explicitly mentioned in terminology_renames. Do not use 'Bank Points' or 'Roll Dice' anywhere.",
+    "CRITICAL: Set up Tailwind CSS configuration to include the custom colors listed under 'colors'.",
+    "CRITICAL: Since it is a mobile_web_app, force a mobile view layout: all major wrapper divs should have 'w-full max-w-md mx-auto min-h-screen'. Do not make it stretch across desktop monitors.",
+    "Add 'data-testid' attributes to all interactive elements, e.g., data-testid='cast-the-bones-button'.",
+    "Integrate Google Fonts for 'Cinzel' (headings) and 'Lora' or 'Merriweather' (body) via index.css or index.html.",
+    "Use 'lucide-react' for all icon needs.",
+    "For the dice rolling visual, you can use Lucide dice icons (Dice1 to Dice6) or custom SVGs colored appropriately for the 5 shop colorways."
+  ]
+}
