@@ -25,6 +25,7 @@ interface DiceProps {
   onPress: () => void;
   disabled: boolean;
   index: number;
+  colorwayId?: string;  // Pass explicitly to override
 }
 
 const DOT_POSITIONS: Record<number, Array<{ top?: string | number; bottom?: string | number; left?: string | number; right?: string | number }>> = {
@@ -36,17 +37,22 @@ const DOT_POSITIONS: Record<number, Array<{ top?: string | number; bottom?: stri
   6: [{ top: '20%', left: '20%' }, { top: '50%', left: '20%' }, { bottom: '20%', left: '20%' }, { top: '20%', right: '20%' }, { top: '50%', right: '20%' }, { bottom: '20%', right: '20%' }],
 };
 
-export const Dice: React.FC<DiceProps> = ({ value, isRolling, isSelected, isScoring, onPress, disabled, index }) => {
+export const Dice: React.FC<DiceProps> = ({ value, isRolling, isSelected, isScoring, onPress, disabled, index, colorwayId }) => {
   const [cw, setCw] = useState(ALL_COLORWAYS[0]);
   const scale = useSharedValue(1);
   const rotation = useSharedValue(0);
   const bounceY = useSharedValue(0);
 
+  // Load colorway — re-read on every mount and when colorwayId changes
   useEffect(() => {
-    AsyncStorage.getItem('@dice_selected').then(id => {
-      if (id) setCw(getColorway(id));
-    }).catch(() => {});
-  }, []);
+    if (colorwayId) {
+      setCw(getColorway(colorwayId));
+    } else {
+      AsyncStorage.getItem('@dice_selected').then(id => {
+        setCw(getColorway(id || 'classic'));
+      }).catch(() => {});
+    }
+  }, [colorwayId]);
 
   useEffect(() => {
     if (isRolling) {
@@ -68,11 +74,12 @@ export const Dice: React.FC<DiceProps> = ({ value, isRolling, isSelected, isScor
   }));
 
   const dotSize = 8;
+  const selectedBorderColor = '#D4AF37';  // Gold for medieval theme
 
   return (
     <Pressable onPress={onPress} disabled={disabled} testID={`dice-${index}`}>
-      <Animated.View style={[styles.diceContainer, animatedStyle, isSelected && styles.selectedDice]}>
-        <View style={[styles.diceFace, { backgroundColor: cw.faceColor, borderColor: isSelected ? '#4CAF50' : cw.borderColor }]}>
+      <Animated.View style={[styles.diceContainer, animatedStyle, isSelected && { borderColor: selectedBorderColor, borderWidth: 3, borderRadius: 12, backgroundColor: `${selectedBorderColor}20` }]}>
+        <View style={[styles.diceFace, { backgroundColor: cw.faceColor, borderColor: isSelected ? selectedBorderColor : cw.borderColor }]}>
           {(DOT_POSITIONS[value] || []).map((pos, i) => (
             <View
               key={i}
@@ -81,7 +88,7 @@ export const Dice: React.FC<DiceProps> = ({ value, isRolling, isSelected, isScor
                 {
                   width: dotSize, height: dotSize, borderRadius: dotSize / 2,
                   position: 'absolute',
-                  backgroundColor: isSelected ? '#1B5E20' : cw.dotColor,
+                  backgroundColor: isSelected ? '#8B6914' : cw.dotColor,
                   ...(pos.top !== undefined ? { top: pos.top } : {}),
                   ...(pos.bottom !== undefined ? { bottom: pos.bottom } : {}),
                   ...(pos.left !== undefined ? { left: pos.left } : {}),
@@ -104,9 +111,7 @@ export const Dice: React.FC<DiceProps> = ({ value, isRolling, isSelected, isScor
 const styles = StyleSheet.create({
   diceContainer: { margin: 6, borderRadius: 12, padding: 2 },
   diceFace: { width: 52, height: 52, borderRadius: 10, borderWidth: 2, position: 'relative' },
-  selectedDice: { borderColor: '#4CAF50', borderWidth: 3, borderRadius: 12, backgroundColor: 'rgba(76,175,80,0.15)' },
-  nonScoringDice: {},
   dot: {},
-  checkMark: { position: 'absolute', top: -8, right: -8, width: 20, height: 20, borderRadius: 10, backgroundColor: '#4CAF50', justifyContent: 'center', alignItems: 'center', zIndex: 10 },
-  checkMarkText: { color: '#fff', fontSize: 12, fontWeight: '800' },
+  checkMark: { position: 'absolute', top: -8, right: -8, width: 20, height: 20, borderRadius: 10, backgroundColor: '#D4AF37', justifyContent: 'center', alignItems: 'center', zIndex: 10 },
+  checkMarkText: { color: '#1A110A', fontSize: 12, fontWeight: '800' },
 });
