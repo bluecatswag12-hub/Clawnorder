@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
 import { router } from 'expo-router';
 import { useGameStore, WinMode, WIN_THRESHOLDS, WIN_MODE_LABELS } from '../store/gameStore';
 import { Ionicons } from '@expo/vector-icons';
+import { playBgMusic, loadMutePreference, getIsMuted, setMuted } from '../utils/audioManager';
 
 const WIN_MODES: WinMode[] = ['noobs', 'ogs', 'panthers'];
 const WIN_COLORS: Record<WinMode, string> = { noobs: '#4CAF50', ogs: '#2196F3', panthers: '#e91e63' };
@@ -17,16 +18,37 @@ const WIN_ICONS: Record<WinMode, string> = { noobs: 'happy', ogs: 'flame', panth
 
 export default function Index() {
   const { setWinMode, winMode } = useGameStore();
+  const [muted, setMutedState] = useState(false);
+
+  useEffect(() => {
+    loadMutePreference().then(() => {
+      setMutedState(getIsMuted());
+      if (!getIsMuted()) playBgMusic();
+    });
+  }, []);
+
+  const toggleMute = async () => {
+    const newVal = !muted;
+    setMutedState(newVal);
+    await setMuted(newVal);
+    if (!newVal) playBgMusic();
+  };
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
-          <View style={styles.logoRow}>
-            <Ionicons name="cube" size={32} color="#e91e63" />
-            <Ionicons name="cube" size={32} color="#2196F3" />
-            <Ionicons name="cube" size={32} color="#4CAF50" />
+          <View style={styles.headerTop}>
+            <View style={{ width: 44 }} />
+            <View style={styles.logoRow}>
+              <Ionicons name="cube" size={32} color="#e91e63" />
+              <Ionicons name="cube" size={32} color="#2196F3" />
+              <Ionicons name="cube" size={32} color="#4CAF50" />
+            </View>
+            <Pressable testID="mute-btn" onPress={toggleMute} style={styles.muteBtn}>
+              <Ionicons name={muted ? 'volume-mute' : 'volume-high'} size={24} color={muted ? '#555' : '#fff'} />
+            </Pressable>
           </View>
           <Text style={styles.title}>CLAW & ORDER</Text>
           <Text style={styles.subtitle}>Dice Unit</Text>
@@ -129,8 +151,10 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#0d0d1a' },
   scrollContent: { padding: 20, paddingBottom: 40 },
-  header: { alignItems: 'center', marginTop: 24, marginBottom: 28 },
-  logoRow: { flexDirection: 'row', gap: 8, marginBottom: 12 },
+  header: { alignItems: 'center', marginTop: 16, marginBottom: 28 },
+  headerTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: 12 },
+  muteBtn: { width: 44, height: 44, justifyContent: 'center', alignItems: 'center', backgroundColor: '#161625', borderRadius: 22, borderWidth: 1, borderColor: '#333' },
+  logoRow: { flexDirection: 'row', gap: 8 },
   title: { fontSize: 38, fontWeight: '900', color: '#fff', letterSpacing: 3 },
   subtitle: { fontSize: 18, color: '#666', fontWeight: '600', marginTop: 4 },
   section: { marginBottom: 24 },

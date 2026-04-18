@@ -18,6 +18,7 @@ import { getScoringHints } from '../utils/gameLogic';
 import { WinMode, WIN_THRESHOLDS, WIN_MODE_LABELS } from '../store/gameStore';
 
 import { BACKEND_URL } from '../utils/api';
+import { stopBgMusic, playBgMusic } from '../utils/audioManager';
 
 const POLL_INTERVAL = 1500;
 
@@ -76,9 +77,13 @@ export default function OnlineGame() {
   }, [roomCode]);
 
   useEffect(() => {
+    stopBgMusic();
     fetchState();
     pollRef.current = setInterval(fetchState, POLL_INTERVAL);
-    return () => { if (pollRef.current) clearInterval(pollRef.current); };
+    return () => {
+      if (pollRef.current) clearInterval(pollRef.current);
+      playBgMusic();
+    };
   }, [fetchState]);
 
   // Auto-advance bust after 2 seconds

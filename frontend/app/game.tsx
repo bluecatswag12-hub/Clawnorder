@@ -18,6 +18,7 @@ import { getScoringHints } from '../utils/gameLogic';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { recordMilestone } from './dice-shop';
+import { stopBgMusic, playBgMusic } from '../utils/audioManager';
 
 export default function Game() {
   const {
@@ -90,13 +91,21 @@ export default function Game() {
 
   const handleBackToMenu = () => {
     resetGame();
+    playBgMusic();
     router.replace('/');
   };
 
   const handleViewLeaderboard = () => {
     resetGame();
+    playBgMusic();
     router.replace('/leaderboard');
   };
+
+  // Stop bg music when game starts
+  useEffect(() => {
+    stopBgMusic();
+    return () => { playBgMusic(); };
+  }, []);
 
   // Auto-save game when there's a winner + record first_win milestone
   const savedRef = useRef(false);
