@@ -107,6 +107,19 @@ export default function Index() {
             </View>
             <Ionicons name="chevron-forward" size={24} color="#e91e6366" />
           </Pressable>
+
+          <Pressable
+            testID="dice-shop-btn"
+            style={[styles.gameBtn, { backgroundColor: '#1a1a2e', borderWidth: 1, borderColor: '#80F2DD' }]}
+            onPress={() => router.push('/dice-shop')}
+          >
+            <Ionicons name="color-palette" size={26} color="#80F2DD" />
+            <View style={styles.btnTextCol}>
+              <Text style={styles.btnTitle}>Dice Shop</Text>
+              <Text style={[styles.btnSub, { color: '#80F2DD' }]}>Unlockable colorways</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={24} color="#80F2DD66" />
+          </Pressable>
         </View>
       </ScrollView>
     </SafeAreaView>
