@@ -140,7 +140,7 @@ export default function OnlineGame() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingBox}>
-          <ActivityIndicator size="large" color="#2196F3" />
+          <ActivityIndicator size="large" color="#D4AF37" />
           <Text style={styles.loadingText}>Connecting to game...</Text>
         </View>
       </SafeAreaView>
@@ -229,7 +229,7 @@ export default function OnlineGame() {
         </Pressable>
         <Text style={styles.headerTitle}>ONLINE</Text>
         <View style={styles.onlineDot}>
-          <View style={[styles.dot, { backgroundColor: '#4CAF50' }]} />
+          <View style={[styles.dot, { backgroundColor: '#2E7D32' }]} />
         </View>
       </View>
 
@@ -286,7 +286,7 @@ export default function OnlineGame() {
           {state.diceValues.length === 0 && state.turnPhase === 'rolling' && (
             <View style={styles.prompt}>
               <Ionicons name="dice" size={48} color="#444" />
-              <Text style={styles.promptText}>{isMyTurn ? 'Roll the dice!' : 'Waiting for opponent...'}</Text>
+              <Text style={styles.promptText}>{isMyTurn ? 'Cast the bones!' : 'Awaiting opponent...'}</Text>
             </View>
           )}
 
@@ -340,7 +340,7 @@ export default function OnlineGame() {
             </View>
           )}
 
-          {/* Hot Hand */}
+          {/* Dragon's Favor */}
           {state.turnPhase === 'hothand' && (
             <View style={styles.hotBox}>
               <Ionicons name="flame" size={48} color="#ff9800" />
@@ -352,7 +352,7 @@ export default function OnlineGame() {
           {/* Waiting */}
           {!isMyTurn && state.turnPhase !== 'bust' && state.diceValues.length > 0 && (
             <View style={styles.waitingIndicator}>
-              <ActivityIndicator size="small" color="#2196F3" />
+              <ActivityIndicator size="small" color="#D4AF37" />
               <Text style={styles.waitingText}>Opponent is playing...</Text>
             </View>
           )}
