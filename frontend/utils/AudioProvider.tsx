@@ -14,6 +14,9 @@ const DICE_ROLL_4_URL = 'https://customer-assets.emergentagent.com/job_dice-poin
 const CURSED_URL = 'https://customer-assets.emergentagent.com/job_dice-point-chase/artifacts/xz5kwlz0_Cursed%20Music%20.mp3';
 const VICTORY_URL = 'https://customer-assets.emergentagent.com/job_dice-point-chase/artifacts/8wi7vx3x_Victory%20Music%20.mp3';
 
+const DICE_SELECT_URL = 'https://customer-assets.emergentagent.com/job_dice-point-chase/artifacts/gyyu22rx_Dice%20Select.mp3';
+const KEEP_CAST_URL = 'https://customer-assets.emergentagent.com/job_dice-point-chase/artifacts/5s91b3gn_Keep%20and%20cast%20.mp3';
+
 // Local SFX
 const SFX_SCORE = require('../assets/audio/score.wav');
 const SFX_SELECT = require('../assets/audio/select.wav');
@@ -61,8 +64,8 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const roll4Player = useAudioPlayer(DICE_ROLL_4_URL);
   const cursedPlayer = useAudioPlayer(CURSED_URL);
   const victoryPlayer = useAudioPlayer(VICTORY_URL);
-  const scorePlayer = useAudioPlayer(SFX_SCORE);
-  const selectPlayer = useAudioPlayer(SFX_SELECT);
+  const selectPlayer = useAudioPlayer(DICE_SELECT_URL);
+  const scorePlayer = useAudioPlayer(KEEP_CAST_URL);
 
   // Load mute preference
   useEffect(() => {
