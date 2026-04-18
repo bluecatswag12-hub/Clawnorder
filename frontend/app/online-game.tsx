@@ -17,7 +17,8 @@ import { WinnerModal } from '../components/WinnerModal';
 import { getScoringHints } from '../utils/gameLogic';
 import { WinMode, WIN_THRESHOLDS, WIN_MODE_LABELS } from '../store/gameStore';
 
-const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
+import { BACKEND_URL } from '../utils/api';
+
 const POLL_INTERVAL = 1500;
 
 interface PlayerData {

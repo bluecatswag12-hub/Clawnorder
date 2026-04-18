@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import { useGameStore, WIN_THRESHOLDS, WIN_MODE_LABELS } from '../store/gameStore';
+import { BACKEND_URL } from '../utils/api';
 import { Dice } from '../components/Dice';
 import { ScoreBoard } from '../components/ScoreBoard';
 import { WinnerModal } from '../components/WinnerModal';
@@ -101,7 +102,6 @@ export default function Game() {
   useEffect(() => {
     if (winner && !savedRef.current) {
       savedRef.current = true;
-      const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
       const winnerPlayer = players.find(p => p.name === winner);
       const loserPlayer = players.find(p => p.name !== winner);
       if (winnerPlayer && loserPlayer) {

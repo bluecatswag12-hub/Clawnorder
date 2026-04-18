@@ -15,7 +15,7 @@ import { router } from 'expo-router';
 import { useGameStore, WIN_MODE_LABELS, WIN_THRESHOLDS } from '../store/gameStore';
 import { Ionicons } from '@expo/vector-icons';
 
-const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
+import { BACKEND_URL } from '../utils/api';
 
 export default function OnlineLobby() {
   const { players, winMode } = useGameStore();
