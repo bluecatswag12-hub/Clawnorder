@@ -19,6 +19,7 @@ import { WinMode, WIN_THRESHOLDS, WIN_MODE_LABELS } from '../store/gameStore';
 
 import { BACKEND_URL } from '../utils/api';
 import { useAudio } from '../utils/AudioProvider';
+import { GameChat } from '../components/GameChat';
 
 const POLL_INTERVAL = 1500;
 
@@ -58,6 +59,7 @@ export default function OnlineGame() {
   const [state, setState] = useState<RoomState | null>(null);
   const [loading, setLoading] = useState(true);
   const [acting, setActing] = useState(false);
+  const [chatVisible, setChatVisible] = useState(false);
   const lastActionRef = useRef('');
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -382,6 +384,15 @@ export default function OnlineGame() {
           )}
         </View>
       )}
+
+      {/* Chat */}
+      <GameChat
+        roomCode={roomCode}
+        playerId={playerId}
+        playerNames={state.players.map(p => p.name)}
+        visible={chatVisible}
+        onToggle={() => setChatVisible(!chatVisible)}
+      />
 
       {state.winner && (
         <WinnerModal

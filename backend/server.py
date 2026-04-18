@@ -209,13 +209,15 @@ def create_room_state(room_code: str, player_name: str, win_mode: str, player_id
         'dice_count': 6,
         'selected_dice': [],
         'kept_dice': [],
-        'turn_phase': 'waiting',  # waiting, rolling, selecting, bust, hothand
+        'turn_phase': 'waiting',
         'current_roll_score': 0,
         'current_roll_breakdown': [],
         'last_selection_score': 0,
         'last_selection_breakdown': [],
         'winner': None,
         'has_rolled': False,
+        'started': False,
+        'chat': [],
         'created_at': datetime.now(timezone.utc).isoformat(),
         'last_action_at': datetime.now(timezone.utc).isoformat(),
     }
@@ -261,6 +263,8 @@ async def join_room(req: JoinRoomRequest):
     if code not in game_rooms:
         return {'error': 'Room not found'}
     room = game_rooms[code]
+    if room.get('started', False):
+        return {'error': 'Game already started'}
     if len(room['players']) >= 5:
         return {'error': 'Room is full (max 5 players)'}
     player_id = str(uuid.uuid4())[:8]
@@ -296,6 +300,7 @@ async def room_roll_dice(room_code: str, req: RoomActionRequest):
     room['last_selection_score'] = 0
     room['last_selection_breakdown'] = []
     room['has_rolled'] = True
+    room['started'] = True
     room['last_action_at'] = datetime.now(timezone.utc).isoformat()
 
     if is_bust:
@@ -479,6 +484,65 @@ async def room_bust_next_turn(room_code: str, req: RoomActionRequest):
     room['last_action_at'] = datetime.now(timezone.utc).isoformat()
 
     return get_room_state_for_client(room)
+
+# ============ CHAT & ACTIVE ROOMS ============
+
+class ChatMessage(BaseModel):
+    player_id: str
+    message: str
+
+@api_router.get("/rooms/active")
+async def get_active_rooms():
+    """List all rooms that haven't started yet (available to join)"""
+    rooms = []
+    for code, room in game_rooms.items():
+        rooms.append({
+            'room_code': code,
+            'host_name': room['players'][0]['name'] if room['players'] else 'Unknown',
+            'player_count': len(room['players']),
+            'max_players': 5,
+            'win_mode': room['win_mode'],
+            'started': room.get('started', False),
+            'has_winner': room['winner'] is not None,
+        })
+    # Filter: show rooms not yet finished, sort joinable first
+    active = [r for r in rooms if not r['has_winner']]
+    active.sort(key=lambda r: (r['started'], -r['player_count']))
+    return active
+
+@api_router.post("/rooms/{room_code}/chat")
+async def send_chat(room_code: str, msg: ChatMessage):
+    code = room_code.upper().strip()
+    if code not in game_rooms:
+        return {'error': 'Room not found'}
+    room = game_rooms[code]
+    # Find player name
+    player_name = 'Unknown'
+    for p in room['players']:
+        if p['id'] == msg.player_id:
+            player_name = p['name']
+            break
+    chat_entry = {
+        'player_name': player_name,
+        'message': msg.message[:200],  # limit message length
+        'timestamp': datetime.now(timezone.utc).isoformat(),
+    }
+    if 'chat' not in room:
+        room['chat'] = []
+    room['chat'].append(chat_entry)
+    # Keep only last 50 messages
+    room['chat'] = room['chat'][-50:]
+    return {'ok': True}
+
+@api_router.get("/rooms/{room_code}/chat")
+async def get_chat(room_code: str, after: str = ''):
+    code = room_code.upper().strip()
+    if code not in game_rooms:
+        return {'error': 'Room not found'}
+    chat = game_rooms[code].get('chat', [])
+    if after:
+        chat = [m for m in chat if m['timestamp'] > after]
+    return chat
 
 # ============ EXISTING API ROUTES ============
 

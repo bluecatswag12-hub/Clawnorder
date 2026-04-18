@@ -65,6 +65,12 @@ export default function Index() {
             <Ionicons name="chevron-forward" size={24} color="rgba(255,255,255,0.6)" />
           </Pressable>
 
+          <Pressable testID="server-browser-btn" style={[styles.gameBtn, { backgroundColor: '#1a1a2e', borderWidth: 1, borderColor: '#4CAF50' }]} onPress={() => router.push('/server-browser')}>
+            <Ionicons name="server" size={26} color="#4CAF50" />
+            <View style={styles.btnTextCol}><Text style={styles.btnTitle}>Local Server</Text><Text style={[styles.btnSub, { color: '#4CAF50' }]}>Browse hosted games</Text></View>
+            <Ionicons name="chevron-forward" size={24} color="#4CAF5066" />
+          </Pressable>
+
           <Pressable testID="rules-btn" style={[styles.gameBtn, { backgroundColor: '#1a1a2e', borderWidth: 1, borderColor: '#ff9800' }]} onPress={() => router.push('/rules')}>
             <Ionicons name="book" size={26} color="#ff9800" />
             <View style={styles.btnTextCol}><Text style={styles.btnTitle}>Rules</Text><Text style={[styles.btnSub, { color: '#ff9800' }]}>Scoring & how to play</Text></View>
