@@ -19,24 +19,42 @@ const WIN_ICONS: Record<WinMode, string> = { noobs: 'happy', ogs: 'flame', panth
 export default function Index() {
   const { setWinMode, winMode } = useGameStore();
   const [muted, setMutedState] = useState(false);
+  const [musicStarted, setMusicStarted] = useState(false);
 
   useEffect(() => {
     loadMutePreference().then(() => {
       setMutedState(getIsMuted());
-      if (!getIsMuted()) playBgMusic();
+      // Try to play — will work on native, may be blocked on web until interaction
+      if (!getIsMuted()) playBgMusic().then(() => setMusicStarted(true)).catch(() => {});
     });
   }, []);
+
+  // On web, browsers block autoplay. This ensures music starts on first tap anywhere
+  const ensureMusic = () => {
+    if (!musicStarted && !muted) {
+      playBgMusic().then(() => setMusicStarted(true)).catch(() => {});
+    }
+  };
 
   const toggleMute = async () => {
     const newVal = !muted;
     setMutedState(newVal);
     await setMuted(newVal);
-    if (!newVal) playBgMusic();
+    if (!newVal) {
+      playBgMusic().then(() => setMusicStarted(true));
+    } else {
+      setMusicStarted(false);
+    }
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        onScrollBeginDrag={ensureMusic}
+      >
+        <Pressable onPress={ensureMusic} style={{ flex: 1 }}>
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerTop}>
@@ -143,6 +161,7 @@ export default function Index() {
             <Ionicons name="chevron-forward" size={24} color="#80F2DD66" />
           </Pressable>
         </View>
+        </Pressable>
       </ScrollView>
     </SafeAreaView>
   );

@@ -2,12 +2,13 @@ import { Audio } from 'expo-av';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const MUTE_KEY = '@audio_muted';
+const THEME_URL = 'https://customer-assets.emergentagent.com/job_dice-point-chase/artifacts/k7zi28m5_8bit-ROLL%20IT%20UP%2031-8%201.wav.wav';
 
 let bgMusic: Audio.Sound | null = null;
 let isMuted = false;
 let isPlaying = false;
+let isLoading = false;
 
-// Load mute preference
 export async function loadMutePreference() {
   try {
     const val = await AsyncStorage.getItem(MUTE_KEY);
@@ -24,35 +25,41 @@ export async function setMuted(muted: boolean) {
   try {
     await AsyncStorage.setItem(MUTE_KEY, muted ? 'true' : 'false');
   } catch {}
-  if (muted) {
-    await stopBgMusic();
+  if (muted && bgMusic && isPlaying) {
+    try {
+      await bgMusic.pauseAsync();
+      isPlaying = false;
+    } catch {}
   }
 }
 
-// Background music
 export async function playBgMusic() {
-  if (isMuted) return;
-  if (isPlaying && bgMusic) return;
+  if (isMuted || isPlaying || isLoading) return;
 
   try {
     await Audio.setAudioModeAsync({
       playsInSilentModeIOS: true,
       staysActiveInBackground: false,
+      shouldDuckAndroid: true,
     });
 
     if (!bgMusic) {
+      isLoading = true;
       const { sound } = await Audio.Sound.createAsync(
-        require('../assets/audio/theme.wav'),
+        { uri: THEME_URL },
         { isLooping: true, volume: 0.4, shouldPlay: true }
       );
       bgMusic = sound;
+      isLoading = false;
+      isPlaying = true;
     } else {
       await bgMusic.setIsLoopingAsync(true);
       await bgMusic.setVolumeAsync(0.4);
       await bgMusic.playAsync();
+      isPlaying = true;
     }
-    isPlaying = true;
   } catch (e) {
+    isLoading = false;
     console.error('Failed to play bg music:', e);
   }
 }
@@ -60,7 +67,7 @@ export async function playBgMusic() {
 export async function stopBgMusic() {
   if (bgMusic && isPlaying) {
     try {
-      await bgMusic.stopAsync();
+      await bgMusic.pauseAsync();
     } catch {}
     isPlaying = false;
   }
@@ -74,27 +81,4 @@ export async function unloadBgMusic() {
     bgMusic = null;
     isPlaying = false;
   }
-}
-
-// Sound effects
-async function playSfx(frequency: number, duration: number, type: 'sine' | 'square' = 'sine') {
-  // expo-av can't synthesize audio, so we use pre-generated short sounds
-  // For now, use haptics as feedback and skip audio synthesis
-}
-
-export async function playDiceRollSfx() {
-  if (isMuted) return;
-  // Use a quick haptic as placeholder - actual sound would need a .wav file
-}
-
-export async function playScoreSfx() {
-  if (isMuted) return;
-}
-
-export async function playBustSfx() {
-  if (isMuted) return;
-}
-
-export async function playWinSfx() {
-  if (isMuted) return;
 }
