@@ -22,7 +22,7 @@ export default function Rules() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} style={styles.headerBtn} testID="back-btn">
-          <Ionicons name="arrow-back" size={26} color="#fff" />
+          <Ionicons name="arrow-back" size={26} color="#F4E3C5" />
         </Pressable>
         <Text style={styles.headerTitle}>RULES</Text>
         <View style={styles.headerBtn} />
@@ -43,39 +43,39 @@ export default function Rules() {
         </Section>
 
         <Section title="Single Dice">
-          <Rule left="1" right="100 pts" color="#4CAF50" />
-          <Rule left="5" right="50 pts" color="#4CAF50" />
+          <Rule left="1" right="100 pts" color="#2E7D32" />
+          <Rule left="5" right="50 pts" color="#2E7D32" />
           <Text style={styles.note}>2, 3, 4, 6 alone are worth nothing</Text>
         </Section>
 
         <Section title="Three of a Kind">
-          <Rule left="111" right="1,000 pts" color="#e91e63" />
+          <Rule left="111" right="1,000 pts" color="#D4AF37" />
           <Rule left="222" right="200 pts" />
           <Rule left="333" right="300 pts" />
           <Rule left="444" right="400 pts" />
-          <Rule left="555" right="500 pts" color="#e91e63" />
+          <Rule left="555" right="500 pts" color="#D4AF37" />
           <Rule left="666" right="600 pts" />
         </Section>
 
         <Section title="Extra Dice Multiplier">
           <Text style={styles.bodyText}>Each extra die beyond 3 of a kind doubles the score:</Text>
-          <Rule left="2222 (4 dice)" right="200 × 2 = 400 pts" color="#ff9800" />
-          <Rule left="22222 (5 dice)" right="200 × 4 = 800 pts" color="#ff9800" />
-          <Rule left="222222 (6 dice)" right="200 × 8 = 1,600 pts" color="#ff9800" />
-          <Rule left="1111 (4 ones)" right="1,000 × 2 = 2,000 pts" color="#ff9800" />
+          <Rule left="2222 (4 dice)" right="200 × 2 = 400 pts" color="#FF9E3D" />
+          <Rule left="22222 (5 dice)" right="200 × 4 = 800 pts" color="#FF9E3D" />
+          <Rule left="222222 (6 dice)" right="200 × 8 = 1,600 pts" color="#FF9E3D" />
+          <Rule left="1111 (4 ones)" right="1,000 × 2 = 2,000 pts" color="#FF9E3D" />
         </Section>
 
         <Section title="Straights">
-          <Rule left="1-2-3-4-5" right="500 pts" color="#2196F3" />
-          <Rule left="2-3-4-5-6" right="750 pts" color="#2196F3" />
-          <Rule left="1-2-3-4-5-6" right="1,500 pts" color="#2196F3" />
+          <Rule left="1-2-3-4-5" right="500 pts" color="#FF9E3D" />
+          <Rule left="2-3-4-5-6" right="750 pts" color="#FF9E3D" />
+          <Rule left="1-2-3-4-5-6" right="1,500 pts" color="#FF9E3D" />
           <Text style={styles.note}>Straights can combine with leftover 1s or 5s</Text>
         </Section>
 
         <Section title="Win Modes">
-          <Rule left="Noobs" right="1,500 pts" color="#4CAF50" />
-          <Rule left="OGs" right="3,000 pts" color="#2196F3" />
-          <Rule left="Panthers" right="5,000 pts" color="#e91e63" />
+          <Rule left="Noobs" right="1,500 pts" color="#2E7D32" />
+          <Rule left="OGs" right="3,000 pts" color="#FF9E3D" />
+          <Rule left="Panthers" right="5,000 pts" color="#D4AF37" />
         </Section>
 
         <Section title="BUST">
@@ -88,17 +88,17 @@ export default function Rules() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0d0d1a' },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 8, backgroundColor: '#111122', borderBottomWidth: 1, borderBottomColor: '#222' },
+  container: { flex: 1, backgroundColor: '#1A110A' },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 8, backgroundColor: '#2C1E16', borderBottomWidth: 1, borderBottomColor: '#3D2B1F' },
   headerBtn: { width: 44, height: 44, justifyContent: 'center', alignItems: 'center' },
-  headerTitle: { fontSize: 18, fontWeight: '800', color: '#fff', letterSpacing: 2 },
+  headerTitle: { fontSize: 18, fontWeight: '800', color: '#F4E3C5', letterSpacing: 2 },
   scrollContent: { padding: 20, paddingBottom: 40 },
-  section: { marginBottom: 24, backgroundColor: '#161625', borderRadius: 14, padding: 16, borderWidth: 1, borderColor: '#222' },
-  sectionTitle: { fontSize: 18, fontWeight: '700', color: '#fff', marginBottom: 12 },
-  bodyText: { fontSize: 14, color: '#aaa', lineHeight: 22, marginBottom: 6 },
-  highlight: { fontSize: 14, color: '#ff9800', fontWeight: '700', lineHeight: 22, marginBottom: 6 },
-  note: { fontSize: 12, color: '#666', fontStyle: 'italic', marginTop: 8 },
+  section: { marginBottom: 24, backgroundColor: '#2C1E16', borderRadius: 14, padding: 16, borderWidth: 1, borderColor: '#3D2B1F' },
+  sectionTitle: { fontSize: 18, fontWeight: '700', color: '#F4E3C5', marginBottom: 12 },
+  bodyText: { fontSize: 14, color: '#E8D3A2', lineHeight: 22, marginBottom: 6 },
+  highlight: { fontSize: 14, color: '#FF9E3D', fontWeight: '700', lineHeight: 22, marginBottom: 6 },
+  note: { fontSize: 12, color: '#AA7C11', fontStyle: 'italic', marginTop: 8 },
   ruleRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#1a1a2e' },
-  ruleLeft: { fontSize: 16, fontWeight: '700', color: '#ccc', letterSpacing: 1 },
-  ruleRight: { fontSize: 14, fontWeight: '600', color: '#888' },
+  ruleLeft: { fontSize: 16, fontWeight: '700', color: '#F4E3C5', letterSpacing: 1 },
+  ruleRight: { fontSize: 14, fontWeight: '600', color: '#C8AC70' },
 });

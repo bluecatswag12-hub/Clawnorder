@@ -22,11 +22,11 @@ export interface DiceColorway {
 }
 
 export const ALL_COLORWAYS: DiceColorway[] = [
-  { id: 'classic', name: 'Classic Ivory', faceColor: '#ffffff', dotColor: '#222222', borderColor: '#333333', locked: false },
+  { id: 'classic', name: 'Classic Ivory', faceColor: '#F4E3C5fff', dotColor: '#3D2B1F222', borderColor: '#3D2B1F333', locked: false },
   { id: 'midnight', name: 'Midnight Ember', faceColor: '#1a1a2e', dotColor: '#ff5722', borderColor: '#ff5722', locked: true, unlockCondition: 'Win your first game', unlockIcon: 'trophy' },
   { id: 'ocean', name: 'Blue Buzz', faceColor: '#0d47a1', dotColor: '#e3f2fd', borderColor: '#42a5f5', locked: true, unlockCondition: 'Score a Hot Hand', unlockIcon: 'flame' },
   { id: 'toxic', name: 'Toxic Lime', faceColor: '#1b1b1b', dotColor: '#76ff03', borderColor: '#76ff03', locked: true, unlockCondition: 'Roll a full straight 123456', unlockIcon: 'dice' },
-  { id: 'aqua', name: 'The Panther', faceColor: '#0d0d1a', dotColor: '#80F2DD', borderColor: '#80F2DD', locked: true, unlockCondition: 'Play 5 games in 24 hours', unlockIcon: 'paw' },
+  { id: 'aqua', name: 'The Panther', faceColor: '#1A110A', dotColor: '#80F2DD', borderColor: '#80F2DD', locked: true, unlockCondition: 'Play 5 games in 24 hours', unlockIcon: 'paw' },
 ];
 
 // Milestone keys stored in AsyncStorage
@@ -137,7 +137,7 @@ export default function DiceShop() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} style={styles.headerBtn} testID="back-btn">
-          <Ionicons name="arrow-back" size={26} color="#fff" />
+          <Ionicons name="arrow-back" size={26} color="#F4E3C5" />
         </Pressable>
         <Text style={styles.headerTitle}>DICE SHOP</Text>
         <View style={styles.headerBtn} />
@@ -174,7 +174,7 @@ export default function DiceShop() {
 
                 {!isAvailable && (
                   <View style={styles.lockRow}>
-                    <Ionicons name={(cw.unlockIcon || 'lock-closed') as any} size={14} color="#ff9800" />
+                    <Ionicons name={(cw.unlockIcon || 'lock-closed') as any} size={14} color="#FF9E3D" />
                     <Text style={styles.lockText}>{cw.unlockCondition}</Text>
                     {progress && <Text style={styles.progressText}>({progress})</Text>}
                   </View>
@@ -184,7 +184,7 @@ export default function DiceShop() {
 
                 {isAvailable && cw.locked && (
                   <View style={styles.unlockedRow}>
-                    <Ionicons name="checkmark-circle" size={14} color="#4CAF50" />
+                    <Ionicons name="checkmark-circle" size={14} color="#2E7D32" />
                     <Text style={styles.unlockedText}>Unlocked forever!</Text>
                   </View>
                 )}
@@ -195,8 +195,8 @@ export default function DiceShop() {
 
         {!unlocked.includes('aqua') && (
           <Pressable style={styles.refreshBtn} onPress={checkPantherUnlock} disabled={checking}>
-            {checking ? <ActivityIndicator color="#fff" size="small" /> : (
-              <><Ionicons name="refresh" size={18} color="#fff" /><Text style={styles.refreshText}>Check Unlock Progress</Text></>
+            {checking ? <ActivityIndicator color="#F4E3C5" size="small" /> : (
+              <><Ionicons name="refresh" size={18} color="#F4E3C5" /><Text style={styles.refreshText}>Check Unlock Progress</Text></>
             )}
           </Pressable>
         )}
@@ -228,28 +228,28 @@ function DicePreview({ value, face, dot, border }: { value: number; face: string
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0d0d1a' },
+  container: { flex: 1, backgroundColor: '#1A110A' },
   loadingBox: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 8, backgroundColor: '#111122', borderBottomWidth: 1, borderBottomColor: '#222' },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 8, backgroundColor: '#2C1E16', borderBottomWidth: 1, borderBottomColor: '#3D2B1F' },
   headerBtn: { width: 44, height: 44, justifyContent: 'center', alignItems: 'center' },
-  headerTitle: { fontSize: 18, fontWeight: '800', color: '#fff', letterSpacing: 2 },
+  headerTitle: { fontSize: 18, fontWeight: '800', color: '#F4E3C5', letterSpacing: 2 },
   scrollContent: { padding: 16, paddingBottom: 40 },
-  pageSubtitle: { fontSize: 14, color: '#666', textAlign: 'center', marginBottom: 20, fontWeight: '600' },
-  card: { backgroundColor: '#161625', borderRadius: 16, padding: 16, marginBottom: 12, borderWidth: 2, borderColor: '#222' },
+  pageSubtitle: { fontSize: 14, color: '#AA7C11', textAlign: 'center', marginBottom: 20, fontWeight: '600' },
+  card: { backgroundColor: '#2C1E16', borderRadius: 16, padding: 16, marginBottom: 12, borderWidth: 2, borderColor: '#3D2B1F' },
   lockedCard: { opacity: 0.55 },
   previewRow: { flexDirection: 'row', justifyContent: 'center', gap: 12, marginBottom: 14 },
   infoCol: {},
   nameRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  colorName: { fontSize: 18, fontWeight: '700', color: '#fff' },
-  lockedText: { color: '#666' },
+  colorName: { fontSize: 18, fontWeight: '700', color: '#F4E3C5' },
+  lockedText: { color: '#AA7C11' },
   equippedBadge: { paddingHorizontal: 10, paddingVertical: 3, borderRadius: 8 },
-  equippedText: { color: '#fff', fontSize: 11, fontWeight: '800' },
-  freeText: { fontSize: 12, color: '#888', marginTop: 4 },
+  equippedText: { color: '#F4E3C5', fontSize: 11, fontWeight: '800' },
+  freeText: { fontSize: 12, color: '#C8AC70', marginTop: 4 },
   lockRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 6, flexWrap: 'wrap' },
-  lockText: { fontSize: 12, color: '#ff9800', fontWeight: '600' },
-  progressText: { fontSize: 11, color: '#666' },
+  lockText: { fontSize: 12, color: '#FF9E3D', fontWeight: '600' },
+  progressText: { fontSize: 11, color: '#AA7C11' },
   unlockedRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 6 },
-  unlockedText: { fontSize: 12, color: '#4CAF50', fontWeight: '600' },
-  refreshBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#333', paddingVertical: 14, borderRadius: 12, gap: 8, marginTop: 8 },
-  refreshText: { fontSize: 14, fontWeight: '600', color: '#fff' },
+  unlockedText: { fontSize: 12, color: '#2E7D32', fontWeight: '600' },
+  refreshBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#3D2B1F', paddingVertical: 14, borderRadius: 12, gap: 8, marginTop: 8 },
+  refreshText: { fontSize: 14, fontWeight: '600', color: '#F4E3C5' },
 });

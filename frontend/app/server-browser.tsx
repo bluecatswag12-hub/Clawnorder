@@ -17,7 +17,7 @@ interface ActiveRoom {
   has_winner: boolean;
 }
 
-const MODE_COLORS: Record<string, string> = { noobs: '#4CAF50', ogs: '#2196F3', panthers: '#e91e63' };
+const MODE_COLORS: Record<string, string> = { noobs: '#2E7D32', ogs: '#FF9E3D', panthers: '#D4AF37' };
 
 export default function ServerBrowser() {
   const [rooms, setRooms] = useState<ActiveRoom[]>([]);
@@ -48,7 +48,7 @@ export default function ServerBrowser() {
 
   const renderRoom = ({ item }: { item: ActiveRoom }) => {
     const canJoin = !item.started && item.player_count < item.max_players;
-    const modeColor = MODE_COLORS[item.win_mode] || '#2196F3';
+    const modeColor = MODE_COLORS[item.win_mode] || '#FF9E3D';
     const modeName = WIN_MODE_LABELS[item.win_mode as keyof typeof WIN_MODE_LABELS] || item.win_mode;
 
     return (
@@ -65,19 +65,19 @@ export default function ServerBrowser() {
 
         <View style={styles.roomBottom}>
           <View style={styles.playerInfo}>
-            <Ionicons name="people" size={16} color="#888" />
+            <Ionicons name="people" size={16} color="#C8AC70" />
             <Text style={styles.playerCount}>{item.player_count}/{item.max_players}</Text>
           </View>
 
           <View style={styles.statusRow}>
             {item.started ? (
               <View style={styles.statusBadge}>
-                <Ionicons name="lock-closed" size={12} color="#FF5722" />
+                <Ionicons name="lock-closed" size={12} color="#B22222" />
                 <Text style={styles.statusStarted}>In Progress</Text>
               </View>
             ) : (
               <View style={styles.statusBadge}>
-                <Ionicons name="lock-open" size={12} color="#4CAF50" />
+                <Ionicons name="lock-open" size={12} color="#2E7D32" />
                 <Text style={styles.statusOpen}>Open</Text>
               </View>
             )}
@@ -97,17 +97,17 @@ export default function ServerBrowser() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} style={styles.headerBtn} testID="back-btn">
-          <Ionicons name="arrow-back" size={26} color="#fff" />
+          <Ionicons name="arrow-back" size={26} color="#F4E3C5" />
         </Pressable>
         <Text style={styles.headerTitle}>LOCAL SERVER</Text>
         <Pressable onPress={() => { setRefreshing(true); fetchRooms(); }} style={styles.headerBtn}>
-          <Ionicons name="refresh" size={22} color="#fff" />
+          <Ionicons name="refresh" size={22} color="#F4E3C5" />
         </Pressable>
       </View>
 
       {loading ? (
         <View style={styles.loadingBox}>
-          <ActivityIndicator size="large" color="#2196F3" />
+          <ActivityIndicator size="large" color="#FF9E3D" />
           <Text style={styles.loadingText}>Scanning for games...</Text>
         </View>
       ) : (
@@ -116,14 +116,14 @@ export default function ServerBrowser() {
           keyExtractor={(item) => item.room_code}
           renderItem={renderRoom}
           contentContainerStyle={styles.listContent}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchRooms(); }} tintColor="#2196F3" />}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchRooms(); }} tintColor="#FF9E3D" />}
           ListEmptyComponent={
             <View style={styles.emptyState}>
-              <Ionicons name="server" size={48} color="#333" />
+              <Ionicons name="server" size={48} color="#3D2B1F" />
               <Text style={styles.emptyTitle}>No active games</Text>
               <Text style={styles.emptySub}>Create one from the Online Game tab!</Text>
               <Pressable style={styles.createBtn} onPress={() => router.push('/online-lobby')}>
-                <Ionicons name="add-circle" size={20} color="#fff" />
+                <Ionicons name="add-circle" size={20} color="#F4E3C5" />
                 <Text style={styles.createBtnText}>Create a Room</Text>
               </Pressable>
             </View>
@@ -138,34 +138,34 @@ export default function ServerBrowser() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0d0d1a' },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 8, backgroundColor: '#111122', borderBottomWidth: 1, borderBottomColor: '#222' },
+  container: { flex: 1, backgroundColor: '#1A110A' },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 8, backgroundColor: '#2C1E16', borderBottomWidth: 1, borderBottomColor: '#3D2B1F' },
   headerBtn: { width: 44, height: 44, justifyContent: 'center', alignItems: 'center' },
-  headerTitle: { fontSize: 18, fontWeight: '800', color: '#fff', letterSpacing: 2 },
+  headerTitle: { fontSize: 18, fontWeight: '800', color: '#F4E3C5', letterSpacing: 2 },
   loadingBox: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  loadingText: { fontSize: 14, color: '#555', marginTop: 12 },
+  loadingText: { fontSize: 14, color: '#AA7C11', marginTop: 12 },
   listContent: { padding: 16, paddingBottom: 40 },
-  listHeader: { fontSize: 13, color: '#666', fontWeight: '600', marginBottom: 12 },
-  roomCard: { backgroundColor: '#161625', borderRadius: 14, padding: 14, marginBottom: 10, borderWidth: 1, borderColor: '#222' },
-  startedCard: { borderColor: '#FF572233', opacity: 0.7 },
+  listHeader: { fontSize: 13, color: '#AA7C11', fontWeight: '600', marginBottom: 12 },
+  roomCard: { backgroundColor: '#2C1E16', borderRadius: 14, padding: 14, marginBottom: 10, borderWidth: 1, borderColor: '#3D2B1F' },
+  startedCard: { borderColor: '#B2222233', opacity: 0.7 },
   roomTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 },
   roomInfo: {},
-  hostName: { fontSize: 16, fontWeight: '700', color: '#fff' },
-  roomCode: { fontSize: 12, color: '#666', fontWeight: '600', marginTop: 2, letterSpacing: 2 },
+  hostName: { fontSize: 16, fontWeight: '700', color: '#F4E3C5' },
+  roomCode: { fontSize: 12, color: '#AA7C11', fontWeight: '600', marginTop: 2, letterSpacing: 2 },
   modeBadge: { paddingHorizontal: 10, paddingVertical: 3, borderRadius: 8 },
-  modeBadgeText: { color: '#fff', fontSize: 11, fontWeight: '700' },
+  modeBadgeText: { color: '#F4E3C5', fontSize: 11, fontWeight: '700' },
   roomBottom: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   playerInfo: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  playerCount: { fontSize: 14, color: '#888', fontWeight: '600' },
+  playerCount: { fontSize: 14, color: '#C8AC70', fontWeight: '600' },
   statusRow: {},
   statusBadge: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  statusStarted: { fontSize: 12, color: '#FF5722', fontWeight: '600' },
-  statusOpen: { fontSize: 12, color: '#4CAF50', fontWeight: '600' },
-  joinBtn: { backgroundColor: '#4CAF50', paddingHorizontal: 20, paddingVertical: 8, borderRadius: 10 },
-  joinBtnText: { color: '#fff', fontSize: 14, fontWeight: '700' },
+  statusStarted: { fontSize: 12, color: '#B22222', fontWeight: '600' },
+  statusOpen: { fontSize: 12, color: '#2E7D32', fontWeight: '600' },
+  joinBtn: { backgroundColor: '#2E7D32', paddingHorizontal: 20, paddingVertical: 8, borderRadius: 10 },
+  joinBtnText: { color: '#F4E3C5', fontSize: 14, fontWeight: '700' },
   emptyState: { alignItems: 'center', paddingTop: 60 },
-  emptyTitle: { fontSize: 20, fontWeight: '700', color: '#555', marginTop: 16 },
+  emptyTitle: { fontSize: 20, fontWeight: '700', color: '#AA7C11', marginTop: 16 },
   emptySub: { fontSize: 14, color: '#444', marginTop: 8 },
-  createBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#4CAF50', paddingHorizontal: 20, paddingVertical: 12, borderRadius: 12, marginTop: 20 },
-  createBtnText: { color: '#fff', fontSize: 15, fontWeight: '700' },
+  createBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#2E7D32', paddingHorizontal: 20, paddingVertical: 12, borderRadius: 12, marginTop: 20 },
+  createBtnText: { color: '#F4E3C5', fontSize: 15, fontWeight: '700' },
 });

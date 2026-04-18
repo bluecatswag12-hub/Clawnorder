@@ -132,11 +132,11 @@ export default function Leaderboard() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} style={styles.headerBtn} testID="back-btn">
-          <Ionicons name="arrow-back" size={26} color="#fff" />
+          <Ionicons name="arrow-back" size={26} color="#F4E3C5" />
         </Pressable>
         <Text style={styles.headerTitle}>LEADERBOARD</Text>
         <Pressable onPress={onRefresh} style={styles.headerBtn} testID="refresh-btn">
-          <Ionicons name="refresh" size={24} color="#fff" />
+          <Ionicons name="refresh" size={24} color="#F4E3C5" />
         </Pressable>
       </View>
 
@@ -147,7 +147,7 @@ export default function Leaderboard() {
           style={[styles.tab, tab === 'daily' && styles.activeTab]}
           onPress={() => setTab('daily')}
         >
-          <Ionicons name="today" size={18} color={tab === 'daily' ? '#fff' : '#666'} />
+          <Ionicons name="today" size={18} color={tab === 'daily' ? '#F4E3C5' : '#AA7C11'} />
           <Text style={[styles.tabText, tab === 'daily' && styles.activeTabText]}>Today</Text>
         </Pressable>
         <Pressable
@@ -155,7 +155,7 @@ export default function Leaderboard() {
           style={[styles.tab, tab === 'alltime' && styles.activeTab]}
           onPress={() => setTab('alltime')}
         >
-          <Ionicons name="stats-chart" size={18} color={tab === 'alltime' ? '#fff' : '#666'} />
+          <Ionicons name="stats-chart" size={18} color={tab === 'alltime' ? '#F4E3C5' : '#AA7C11'} />
           <Text style={[styles.tabText, tab === 'alltime' && styles.activeTabText]}>All Time</Text>
         </Pressable>
       </View>
@@ -173,13 +173,13 @@ export default function Leaderboard() {
 
       {loading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#2196F3" />
+          <ActivityIndicator size="large" color="#FF9E3D" />
           <Text style={styles.loadingText}>Loading leaderboard...</Text>
         </View>
       ) : (
         <ScrollView
           contentContainerStyle={styles.scrollContent}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#2196F3" />}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FF9E3D" />}
         >
           {/* Column Headers */}
           <View style={styles.headerRow}>
@@ -194,7 +194,7 @@ export default function Leaderboard() {
               dailyLeaderboard.map((entry, i) => renderDailyRow(entry, i))
             ) : (
               <View style={styles.emptyState}>
-                <Ionicons name="dice" size={48} color="#333" />
+                <Ionicons name="dice" size={48} color="#3D2B1F" />
                 <Text style={styles.emptyTitle}>No games today yet!</Text>
                 <Text style={styles.emptySubtext}>Play a game to appear on the daily leaderboard</Text>
                 <Pressable
@@ -211,7 +211,7 @@ export default function Leaderboard() {
               allTimeLeaderboard.map((entry, i) => renderAllTimeRow(entry, i))
             ) : (
               <View style={styles.emptyState}>
-                <Ionicons name="trophy" size={48} color="#333" />
+                <Ionicons name="trophy" size={48} color="#3D2B1F" />
                 <Text style={styles.emptyTitle}>No games played yet!</Text>
                 <Text style={styles.emptySubtext}>Complete a game to join the leaderboard</Text>
               </View>
@@ -224,24 +224,24 @@ export default function Leaderboard() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0d0d1a' },
+  container: { flex: 1, backgroundColor: '#1A110A' },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 12,
     paddingVertical: 8,
-    backgroundColor: '#111122',
+    backgroundColor: '#2C1E16',
     borderBottomWidth: 1,
-    borderBottomColor: '#222',
+    borderBottomColor: '#3D2B1F',
   },
   headerBtn: { width: 44, height: 44, justifyContent: 'center', alignItems: 'center' },
-  headerTitle: { fontSize: 18, fontWeight: '800', color: '#fff', letterSpacing: 2 },
+  headerTitle: { fontSize: 18, fontWeight: '800', color: '#F4E3C5', letterSpacing: 2 },
   tabRow: {
     flexDirection: 'row',
     marginHorizontal: 16,
     marginTop: 12,
-    backgroundColor: '#161625',
+    backgroundColor: '#2C1E16',
     borderRadius: 12,
     padding: 4,
   },
@@ -254,31 +254,31 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     gap: 6,
   },
-  activeTab: { backgroundColor: '#e91e63' },
-  tabText: { fontSize: 14, fontWeight: '700', color: '#666' },
-  activeTabText: { color: '#fff' },
+  activeTab: { backgroundColor: '#D4AF37' },
+  tabText: { fontSize: 14, fontWeight: '700', color: '#AA7C11' },
+  activeTabText: { color: '#F4E3C5' },
   summaryBanner: {
     marginHorizontal: 16,
     marginTop: 12,
-    backgroundColor: '#161625',
+    backgroundColor: '#2C1E16',
     borderRadius: 12,
     padding: 14,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#e91e6333',
+    borderColor: '#D4AF3733',
   },
-  summaryDate: { fontSize: 16, fontWeight: '700', color: '#fff' },
-  summaryGames: { fontSize: 13, color: '#e91e63', marginTop: 4, fontWeight: '600' },
-  summaryRefresh: { fontSize: 11, color: '#555', marginTop: 4 },
+  summaryDate: { fontSize: 16, fontWeight: '700', color: '#F4E3C5' },
+  summaryGames: { fontSize: 13, color: '#D4AF37', marginTop: 4, fontWeight: '600' },
+  summaryRefresh: { fontSize: 11, color: '#AA7C11', marginTop: 4 },
   scrollContent: { padding: 16, paddingBottom: 40 },
   headerRow: {
     flexDirection: 'row',
     paddingBottom: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#222',
+    borderBottomColor: '#3D2B1F',
     marginBottom: 8,
   },
-  headerLabel: { fontSize: 12, color: '#666', fontWeight: '600', textTransform: 'uppercase' },
+  headerLabel: { fontSize: 12, color: '#AA7C11', fontWeight: '600', textTransform: 'uppercase' },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -287,33 +287,33 @@ const styles = StyleSheet.create({
     borderBottomColor: '#1a1a2e',
   },
   topRow: {
-    backgroundColor: '#161625',
+    backgroundColor: '#2C1E16',
     borderRadius: 10,
     marginBottom: 4,
     borderBottomWidth: 0,
     paddingHorizontal: 8,
   },
   rankCol: { width: 40, alignItems: 'center' },
-  rankText: { fontSize: 16, fontWeight: '700', color: '#555' },
+  rankText: { fontSize: 16, fontWeight: '700', color: '#AA7C11' },
   nameCol: { flex: 1, paddingHorizontal: 8 },
-  nameText: { fontSize: 15, fontWeight: '600', color: '#ccc' },
-  topName: { color: '#fff', fontSize: 16 },
-  gamesText: { fontSize: 11, color: '#555', marginTop: 2 },
+  nameText: { fontSize: 15, fontWeight: '600', color: '#F4E3C5' },
+  topName: { color: '#F4E3C5', fontSize: 16 },
+  gamesText: { fontSize: 11, color: '#AA7C11', marginTop: 2 },
   statCol: { width: 60, alignItems: 'center' },
-  winsText: { fontSize: 16, fontWeight: '800', color: '#4CAF50' },
-  pointsText: { fontSize: 14, fontWeight: '700', color: '#2196F3' },
-  ptsLabel: { fontSize: 10, color: '#555' },
+  winsText: { fontSize: 16, fontWeight: '800', color: '#2E7D32' },
+  pointsText: { fontSize: 14, fontWeight: '700', color: '#FF9E3D' },
+  ptsLabel: { fontSize: 10, color: '#AA7C11' },
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop: 60 },
-  loadingText: { fontSize: 14, color: '#555', marginTop: 12 },
+  loadingText: { fontSize: 14, color: '#AA7C11', marginTop: 12 },
   emptyState: { alignItems: 'center', paddingTop: 40 },
-  emptyTitle: { fontSize: 20, fontWeight: '700', color: '#555', marginTop: 16 },
+  emptyTitle: { fontSize: 20, fontWeight: '700', color: '#AA7C11', marginTop: 16 },
   emptySubtext: { fontSize: 14, color: '#444', marginTop: 8, textAlign: 'center' },
   playBtn: {
-    backgroundColor: '#e91e63',
+    backgroundColor: '#D4AF37',
     paddingHorizontal: 32,
     paddingVertical: 14,
     borderRadius: 12,
     marginTop: 20,
   },
-  playBtnText: { fontSize: 16, fontWeight: '700', color: '#fff' },
+  playBtnText: { fontSize: 16, fontWeight: '700', color: '#F4E3C5' },
 });

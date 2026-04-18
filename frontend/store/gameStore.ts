@@ -5,7 +5,7 @@ export type GameMode = 'menu' | 'local' | 'online';
 export type WinMode = 'noobs' | 'ogs' | 'panthers';
 
 export const WIN_THRESHOLDS: Record<WinMode, number> = { noobs: 1500, ogs: 3000, panthers: 5000 };
-export const WIN_MODE_LABELS: Record<WinMode, string> = { noobs: 'Noobs', ogs: 'OGs', panthers: 'Panthers' };
+export const WIN_MODE_LABELS: Record<WinMode, string> = { noobs: 'Peasants', ogs: 'Knights', panthers: 'Royals' };
 
 export interface Player {
   name: string;

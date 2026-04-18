@@ -7,7 +7,7 @@ export default function Layout() {
       <Stack
         screenOptions={{
           headerShown: false,
-          contentStyle: { backgroundColor: '#0d0d1a' },
+          contentStyle: { backgroundColor: '#1A110A' },
         }}
       />
     </AudioProvider>

@@ -275,8 +275,8 @@ export default function Game() {
           {turnPhase === 'bust' && (
             <View style={styles.bustBox}>
               <Ionicons name="close-circle" size={48} color="#FF5722" />
-              <Text style={styles.bustText}>BUST!</Text>
-              <Text style={styles.bustSub}>No scoring dice — turn lost!</Text>
+              <Text style={styles.bustText}>CURSED!</Text>
+              <Text style={styles.bustSub}>No scoring bones — turn lost!</Text>
             </View>
           )}
 
@@ -284,8 +284,8 @@ export default function Game() {
           {turnPhase === 'hothand' && (
             <View style={styles.hotHandBox}>
               <Ionicons name="flame" size={48} color="#ff9800" />
-              <Text style={styles.hotHandText}>HOT HAND!</Text>
-              <Text style={styles.hotHandSub}>All dice scored! Bank or roll fresh 6!</Text>
+              <Text style={styles.hotHandText}>DRAGON'S FAVOR!</Text>
+              <Text style={styles.hotHandSub}>All bones scored! Hoard or cast fresh 6!</Text>
             </View>
           )}
         </View>
@@ -303,14 +303,13 @@ export default function Game() {
               activeOpacity={0.8}
             >
               <Ionicons name="checkmark" size={24} color="#fff" />
-              <Text style={styles.ctrlText}>Keep & Roll</Text>
+              <Text style={styles.ctrlText}>Keep & Cast</Text>
             </Pressable>
             {currentPlayer.currentTurnScore > 0 && (
               <Pressable
                 testID="bank-from-select-btn"
                 style={[styles.ctrlBtn, styles.bankBtn]}
                 onPress={() => {
-                  // Need to confirm selection first then bank
                   if (canConfirmSelection) {
                     confirmSelection();
                     setTimeout(() => bankPoints(), 100);
@@ -318,8 +317,8 @@ export default function Game() {
                 }}
                 activeOpacity={0.8}
               >
-                <Ionicons name="wallet" size={24} color="#fff" />
-                <Text style={styles.ctrlText}>Keep & Bank</Text>
+                <Ionicons name="logo-bitcoin" size={24} color="#fff" />
+                <Text style={styles.ctrlText}>Keep & Hoard</Text>
               </Pressable>
             )}
           </>
@@ -336,7 +335,7 @@ export default function Game() {
             >
               <Ionicons name="dice" size={24} color="#fff" />
               <Text style={styles.ctrlText}>
-                {hasRolled ? `Roll ${diceCount} Dice` : 'Roll Dice'}
+                {hasRolled ? `Cast ${diceCount} Bones` : 'Cast the Bones'}
               </Text>
             </Pressable>
             {canBank && (
@@ -346,8 +345,8 @@ export default function Game() {
                 onPress={handleBankPoints}
                 activeOpacity={0.8}
               >
-                <Ionicons name="wallet" size={24} color="#fff" />
-                <Text style={styles.ctrlText}>Bank {currentPlayer.currentTurnScore}</Text>
+                <Ionicons name="logo-bitcoin" size={24} color="#fff" />
+                <Text style={styles.ctrlText}>Hoard {currentPlayer.currentTurnScore}</Text>
               </Pressable>
             )}
           </>
@@ -362,7 +361,7 @@ export default function Game() {
               activeOpacity={0.8}
             >
               <Ionicons name="flame" size={24} color="#fff" />
-              <Text style={styles.ctrlText}>Bank & Continue</Text>
+              <Text style={styles.ctrlText}>Hoard & Continue</Text>
             </Pressable>
             <Pressable
               testID="bank-pass-btn"
@@ -370,8 +369,8 @@ export default function Game() {
               onPress={handleBankPoints}
               activeOpacity={0.8}
             >
-              <Ionicons name="wallet" size={24} color="#fff" />
-              <Text style={styles.ctrlText}>Bank & Pass</Text>
+              <Ionicons name="logo-bitcoin" size={24} color="#fff" />
+              <Text style={styles.ctrlText}>Hoard & Pass</Text>
             </Pressable>
           </>
         )}
@@ -393,7 +392,7 @@ export default function Game() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0d0d1a',
+    backgroundColor: '#1A110A',
   },
   header: {
     flexDirection: 'row',
@@ -401,9 +400,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 12,
     paddingVertical: 8,
-    backgroundColor: '#111122',
+    backgroundColor: '#2C1E16',
     borderBottomWidth: 1,
-    borderBottomColor: '#222',
+    borderBottomColor: '#3D2B1F',
   },
   headerBtn: {
     width: 44,
@@ -414,7 +413,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#fff',
+    color: '#D4AF37',
     letterSpacing: 2,
   },
   scrollContent: {
@@ -428,11 +427,11 @@ const styles = StyleSheet.create({
   turnLabel: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#fff',
+    color: '#F4E3C5',
   },
   turnAccum: {
     fontSize: 14,
-    color: '#ff9800',
+    color: '#FF9E3D',
     fontWeight: '600',
     marginTop: 4,
   },
@@ -442,7 +441,7 @@ const styles = StyleSheet.create({
   },
   keptLabel: {
     fontSize: 12,
-    color: '#666',
+    color: '#AA7C11',
     fontWeight: '600',
     marginBottom: 6,
   },
@@ -455,14 +454,14 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 6,
-    backgroundColor: '#2a3f5f',
+    backgroundColor: '#3D2B1F',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#4CAF50',
+    borderColor: '#D4AF37',
   },
   keptDieText: {
-    color: '#4CAF50',
+    color: '#D4AF37',
     fontSize: 14,
     fontWeight: '700',
   },
@@ -478,7 +477,7 @@ const styles = StyleSheet.create({
   },
   rollPromptText: {
     fontSize: 16,
-    color: '#555',
+    color: '#AA7C11',
     marginTop: 12,
     fontWeight: '600',
   },
@@ -492,92 +491,92 @@ const styles = StyleSheet.create({
   selectionPreview: {
     marginTop: 16,
     alignItems: 'center',
-    backgroundColor: '#161625',
+    backgroundColor: '#2C1E16',
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#333',
+    borderColor: '#3D2B1F',
     minWidth: 200,
   },
   previewScore: {
     fontSize: 24,
     fontWeight: '800',
-    color: '#4CAF50',
+    color: '#D4AF37',
   },
   previewBreakdown: {
     fontSize: 13,
-    color: '#888',
+    color: '#AA7C11',
     marginTop: 2,
   },
   previewError: {
     fontSize: 13,
-    color: '#FF5722',
+    color: '#B22222',
     fontWeight: '600',
   },
   previewHint: {
     fontSize: 13,
-    color: '#555',
+    color: '#AA7C11',
     fontStyle: 'italic',
   },
   lastRollInfo: {
     marginTop: 12,
     alignItems: 'center',
-    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+    backgroundColor: 'rgba(212, 175, 55, 0.1)',
     paddingVertical: 8,
     paddingHorizontal: 20,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#4CAF5044',
+    borderColor: '#D4AF3744',
   },
   lastRollTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#4CAF50',
+    color: '#D4AF37',
   },
   lastRollBreak: {
     fontSize: 12,
-    color: '#888',
+    color: '#AA7C11',
     marginTop: 2,
   },
   bustBox: {
     alignItems: 'center',
     marginTop: 16,
     padding: 24,
-    backgroundColor: 'rgba(255, 87, 34, 0.12)',
+    backgroundColor: 'rgba(139, 0, 0, 0.15)',
     borderRadius: 16,
     borderWidth: 2,
-    borderColor: '#FF5722',
+    borderColor: '#8B0000',
   },
   bustText: {
     fontSize: 36,
     fontWeight: '900',
-    color: '#FF5722',
+    color: '#B22222',
     marginTop: 8,
   },
   bustSub: {
     fontSize: 14,
-    color: '#FF5722',
+    color: '#B22222',
     marginTop: 4,
   },
   hotHandBox: {
     alignItems: 'center',
     marginTop: 16,
     padding: 24,
-    backgroundColor: 'rgba(255, 152, 0, 0.12)',
+    backgroundColor: 'rgba(255, 158, 61, 0.12)',
     borderRadius: 16,
     borderWidth: 2,
-    borderColor: '#ff9800',
+    borderColor: '#FF9E3D',
   },
   hotHandText: {
     fontSize: 36,
     fontWeight: '900',
-    color: '#ff9800',
+    color: '#FF9E3D',
     marginTop: 8,
   },
   hotHandSub: {
     fontSize: 14,
-    color: '#ff9800',
+    color: '#FF9E3D',
     marginTop: 4,
   },
   controls: {
@@ -585,9 +584,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 12,
     gap: 10,
-    backgroundColor: '#111122',
+    backgroundColor: '#2C1E16',
     borderTopWidth: 1,
-    borderTopColor: '#222',
+    borderTopColor: '#3D2B1F',
   },
   ctrlBtn: {
     flex: 1,
@@ -599,24 +598,24 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   rollBtn: {
-    backgroundColor: '#2196F3',
+    backgroundColor: '#FF9E3D',
   },
   bankBtn: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#D4AF37',
   },
   confirmBtn: {
-    backgroundColor: '#e91e63',
+    backgroundColor: '#8B0000',
   },
   hotHandBtn: {
-    backgroundColor: '#ff9800',
+    backgroundColor: '#FF9E3D',
   },
   disabledBtn: {
-    backgroundColor: '#333',
+    backgroundColor: '#3D2B1F',
     opacity: 0.5,
   },
   ctrlText: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#fff',
+    color: '#1A110A',
   },
 });

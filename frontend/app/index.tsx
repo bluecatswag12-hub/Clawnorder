@@ -1,15 +1,12 @@
 import React, { useEffect } from 'react';
-import {
-  View, Text, StyleSheet, Pressable, SafeAreaView, ScrollView,
-} from 'react-native';
+import { View, Text, StyleSheet, Pressable, SafeAreaView, ScrollView } from 'react-native';
 import { router } from 'expo-router';
 import { useGameStore, WinMode, WIN_THRESHOLDS, WIN_MODE_LABELS } from '../store/gameStore';
 import { Ionicons } from '@expo/vector-icons';
 import { useAudio } from '../utils/AudioProvider';
+import { T, WIN_COLORS, WIN_ICONS } from '../utils/theme';
 
 const WIN_MODES: WinMode[] = ['noobs', 'ogs', 'panthers'];
-const WIN_COLORS: Record<WinMode, string> = { noobs: '#4CAF50', ogs: '#2196F3', panthers: '#e91e63' };
-const WIN_ICONS: Record<WinMode, string> = { noobs: 'happy', ogs: 'flame', panthers: 'trophy' };
 
 export default function Index() {
   const { setWinMode, winMode } = useGameStore();
@@ -18,75 +15,71 @@ export default function Index() {
   useEffect(() => { playMusic(); }, []);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.headerTop}>
+    <SafeAreaView style={s.container}>
+      <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
+        <View style={s.header}>
+          <View style={s.headerTop}>
             <View style={{ width: 44 }} />
-            <View style={styles.logoRow}>
-              <Ionicons name="cube" size={32} color="#e91e63" />
-              <Ionicons name="cube" size={32} color="#2196F3" />
-              <Ionicons name="cube" size={32} color="#4CAF50" />
+            <View style={s.crest}>
+              <Ionicons name="shield" size={28} color={T.gold} />
             </View>
-            <Pressable testID="mute-btn" onPress={toggleMute} style={styles.muteBtn}>
-              <Ionicons name={isMuted ? 'volume-mute' : 'volume-high'} size={24} color={isMuted ? '#555' : '#fff'} />
+            <Pressable testID="mute-btn" onPress={toggleMute} style={s.muteBtn}>
+              <Ionicons name={isMuted ? 'volume-mute' : 'volume-high'} size={22} color={isMuted ? T.silver : T.gold} />
             </Pressable>
           </View>
-          <Text style={styles.title}>CLAW & ORDER</Text>
-          <Text style={styles.subtitle}>Dice Unit</Text>
+          <Text style={s.title}>CLAW & ORDER</Text>
+          <Text style={s.subtitle}>Dice Unit</Text>
+          <View style={s.divider}><View style={s.dividerLine} /><Ionicons name="diamond" size={10} color={T.gold} /><View style={s.dividerLine} /></View>
         </View>
 
-        {/* Game Mode Selector */}
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>Score Target</Text>
-          <View style={styles.modeRow}>
+        <View style={s.section}>
+          <Text style={s.sectionLabel}>Choose Thy Challenge</Text>
+          <View style={s.modeRow}>
             {WIN_MODES.map((mode) => (
-              <Pressable key={mode} testID={`mode-${mode}`} style={[styles.modeCard, winMode === mode && { borderColor: WIN_COLORS[mode], backgroundColor: `${WIN_COLORS[mode]}18` }]} onPress={() => setWinMode(mode)}>
-                <Ionicons name={WIN_ICONS[mode] as any} size={22} color={winMode === mode ? WIN_COLORS[mode] : '#555'} />
-                <Text style={[styles.modeName, winMode === mode && { color: WIN_COLORS[mode] }]}>{WIN_MODE_LABELS[mode]}</Text>
-                <Text style={[styles.modeScore, winMode === mode && { color: WIN_COLORS[mode] }]}>{WIN_THRESHOLDS[mode]}</Text>
+              <Pressable key={mode} testID={`mode-${mode}`} style={[s.modeCard, winMode === mode && { borderColor: WIN_COLORS[mode], backgroundColor: `${WIN_COLORS[mode]}20` }]} onPress={() => setWinMode(mode)}>
+                <Ionicons name={WIN_ICONS[mode] as any} size={20} color={winMode === mode ? WIN_COLORS[mode] : T.silver} />
+                <Text style={[s.modeName, winMode === mode && { color: WIN_COLORS[mode] }]}>{WIN_MODE_LABELS[mode]}</Text>
+                <Text style={[s.modeScore, winMode === mode && { color: WIN_COLORS[mode] }]}>{WIN_THRESHOLDS[mode]}</Text>
               </Pressable>
             ))}
           </View>
         </View>
 
-        {/* Nav Buttons */}
-        <View style={styles.buttonsContainer}>
-          <Pressable testID="local-game-btn" style={[styles.gameBtn, { backgroundColor: WIN_COLORS[winMode] }]} onPress={() => router.push('/local-setup')}>
-            <Ionicons name="people" size={26} color="#fff" />
-            <View style={styles.btnTextCol}><Text style={styles.btnTitle}>Local Game</Text><Text style={styles.btnSub}>2-5 players, same device</Text></View>
-            <Ionicons name="chevron-forward" size={24} color="rgba(255,255,255,0.6)" />
+        <View style={s.buttons}>
+          <Pressable testID="local-game-btn" style={[s.btn, { borderColor: T.candlelight }]} onPress={() => router.push('/local-setup')}>
+            <Ionicons name="people" size={24} color={T.candlelight} />
+            <View style={s.btnCol}><Text style={[s.btnTitle, { color: T.candlelight }]}>Local Tavern</Text><Text style={s.btnSub}>2-5 players, same device</Text></View>
+            <Ionicons name="chevron-forward" size={20} color={T.woodLight} />
           </Pressable>
 
-          <Pressable testID="online-game-btn" style={[styles.gameBtn, { backgroundColor: '#333' }]} onPress={() => router.push('/online-lobby')}>
-            <Ionicons name="globe" size={26} color="#fff" />
-            <View style={styles.btnTextCol}><Text style={styles.btnTitle}>Online Game</Text><Text style={styles.btnSub}>Up to 5 players, room codes</Text></View>
-            <Ionicons name="chevron-forward" size={24} color="rgba(255,255,255,0.6)" />
+          <Pressable testID="online-game-btn" style={[s.btn, { borderColor: T.gold }]} onPress={() => router.push('/online-lobby')}>
+            <Ionicons name="globe" size={24} color={T.gold} />
+            <View style={s.btnCol}><Text style={[s.btnTitle, { color: T.gold }]}>Online Realm</Text><Text style={s.btnSub}>Up to 5 players, room codes</Text></View>
+            <Ionicons name="chevron-forward" size={20} color={T.woodLight} />
           </Pressable>
 
-          <Pressable testID="server-browser-btn" style={[styles.gameBtn, { backgroundColor: '#1a1a2e', borderWidth: 1, borderColor: '#4CAF50' }]} onPress={() => router.push('/server-browser')}>
-            <Ionicons name="server" size={26} color="#4CAF50" />
-            <View style={styles.btnTextCol}><Text style={styles.btnTitle}>Local Server</Text><Text style={[styles.btnSub, { color: '#4CAF50' }]}>Browse hosted games</Text></View>
-            <Ionicons name="chevron-forward" size={24} color="#4CAF5066" />
+          <Pressable testID="server-browser-btn" style={[s.btn, { borderColor: T.emerald }]} onPress={() => router.push('/server-browser')}>
+            <Ionicons name="server" size={24} color={T.emerald} />
+            <View style={s.btnCol}><Text style={[s.btnTitle, { color: T.emerald }]}>Local Server</Text><Text style={s.btnSub}>Browse hosted taverns</Text></View>
+            <Ionicons name="chevron-forward" size={20} color={T.woodLight} />
           </Pressable>
 
-          <Pressable testID="rules-btn" style={[styles.gameBtn, { backgroundColor: '#1a1a2e', borderWidth: 1, borderColor: '#ff9800' }]} onPress={() => router.push('/rules')}>
-            <Ionicons name="book" size={26} color="#ff9800" />
-            <View style={styles.btnTextCol}><Text style={styles.btnTitle}>Rules</Text><Text style={[styles.btnSub, { color: '#ff9800' }]}>Scoring & how to play</Text></View>
-            <Ionicons name="chevron-forward" size={24} color="#ff980066" />
+          <Pressable testID="rules-btn" style={[s.btn, { borderColor: T.parchmentDark }]} onPress={() => router.push('/rules')}>
+            <Ionicons name="scroll" size={24} color={T.parchment} />
+            <View style={s.btnCol}><Text style={[s.btnTitle, { color: T.parchment }]}>The Scrolls</Text><Text style={s.btnSub}>Rules of the realm</Text></View>
+            <Ionicons name="chevron-forward" size={20} color={T.woodLight} />
           </Pressable>
 
-          <Pressable testID="leaderboard-btn" style={[styles.gameBtn, { backgroundColor: '#1a1a2e', borderWidth: 1, borderColor: '#e91e63' }]} onPress={() => router.push('/leaderboard')}>
-            <Ionicons name="trophy" size={26} color="#e91e63" />
-            <View style={styles.btnTextCol}><Text style={styles.btnTitle}>Leaderboard</Text><Text style={[styles.btnSub, { color: '#e91e63' }]}>Daily & All-Time</Text></View>
-            <Ionicons name="chevron-forward" size={24} color="#e91e6366" />
+          <Pressable testID="leaderboard-btn" style={[s.btn, { borderColor: T.crimsonLight }]} onPress={() => router.push('/leaderboard')}>
+            <Ionicons name="trophy" size={24} color={T.crimsonLight} />
+            <View style={s.btnCol}><Text style={[s.btnTitle, { color: T.crimsonLight }]}>Hall of Champions</Text><Text style={s.btnSub}>Daily & All-Time</Text></View>
+            <Ionicons name="chevron-forward" size={20} color={T.woodLight} />
           </Pressable>
 
-          <Pressable testID="dice-shop-btn" style={[styles.gameBtn, { backgroundColor: '#1a1a2e', borderWidth: 1, borderColor: '#80F2DD' }]} onPress={() => router.push('/dice-shop')}>
-            <Ionicons name="color-palette" size={26} color="#80F2DD" />
-            <View style={styles.btnTextCol}><Text style={styles.btnTitle}>Dice Shop</Text><Text style={[styles.btnSub, { color: '#80F2DD' }]}>Unlockable colorways</Text></View>
-            <Ionicons name="chevron-forward" size={24} color="#80F2DD66" />
+          <Pressable testID="dice-shop-btn" style={[s.btn, { borderColor: '#80F2DD' }]} onPress={() => router.push('/dice-shop')}>
+            <Ionicons name="color-palette" size={24} color="#80F2DD" />
+            <View style={s.btnCol}><Text style={[s.btnTitle, { color: '#80F2DD' }]}>The Armoury</Text><Text style={[s.btnSub, { color: '#80F2DD88' }]}>Unlockable dice</Text></View>
+            <Ionicons name="chevron-forward" size={20} color={T.woodLight} />
           </Pressable>
         </View>
       </ScrollView>
@@ -94,24 +87,26 @@ export default function Index() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0d0d1a' },
-  scrollContent: { padding: 20, paddingBottom: 40 },
-  header: { alignItems: 'center', marginTop: 16, marginBottom: 28 },
+const s = StyleSheet.create({
+  container: { flex: 1, backgroundColor: T.bgPrimary },
+  scroll: { padding: 20, paddingBottom: 40 },
+  header: { alignItems: 'center', marginTop: 16, marginBottom: 24 },
   headerTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: 12 },
-  muteBtn: { width: 44, height: 44, justifyContent: 'center', alignItems: 'center', backgroundColor: '#161625', borderRadius: 22, borderWidth: 1, borderColor: '#333' },
-  logoRow: { flexDirection: 'row', gap: 8 },
-  title: { fontSize: 38, fontWeight: '900', color: '#fff', letterSpacing: 3 },
-  subtitle: { fontSize: 18, color: '#666', fontWeight: '600', marginTop: 4 },
+  crest: { width: 48, height: 48, borderRadius: 24, backgroundColor: T.wood, justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: T.gold },
+  muteBtn: { width: 44, height: 44, justifyContent: 'center', alignItems: 'center', backgroundColor: T.wood, borderRadius: 22, borderWidth: 1, borderColor: T.woodLight },
+  title: { fontSize: 34, fontWeight: '900', color: T.gold, letterSpacing: 3, textShadowColor: 'rgba(0,0,0,0.5)', textShadowOffset: { width: 2, height: 2 }, textShadowRadius: 4 },
+  subtitle: { fontSize: 16, color: T.textSecondary, fontWeight: '600', marginTop: 2, letterSpacing: 4, textTransform: 'uppercase' },
+  divider: { flexDirection: 'row', alignItems: 'center', marginTop: 12, gap: 8 },
+  dividerLine: { width: 40, height: 1, backgroundColor: T.gold },
   section: { marginBottom: 24 },
-  sectionLabel: { fontSize: 13, fontWeight: '700', color: '#888', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 },
+  sectionLabel: { fontSize: 12, fontWeight: '700', color: T.textSecondary, textTransform: 'uppercase', letterSpacing: 2, marginBottom: 10, textAlign: 'center' },
   modeRow: { flexDirection: 'row', gap: 8 },
-  modeCard: { flex: 1, backgroundColor: '#161625', borderRadius: 14, padding: 14, alignItems: 'center', borderWidth: 2, borderColor: '#222' },
-  modeName: { fontSize: 12, fontWeight: '700', color: '#666', marginTop: 6 },
-  modeScore: { fontSize: 17, fontWeight: '800', color: '#444', marginTop: 2 },
-  buttonsContainer: { gap: 12 },
-  gameBtn: { flexDirection: 'row', alignItems: 'center', padding: 18, borderRadius: 16, gap: 14 },
-  btnTextCol: { flex: 1 },
-  btnTitle: { fontSize: 18, fontWeight: '700', color: '#fff' },
-  btnSub: { fontSize: 12, color: 'rgba(255,255,255,0.6)', marginTop: 2 },
+  modeCard: { flex: 1, backgroundColor: T.wood, borderRadius: 12, padding: 12, alignItems: 'center', borderWidth: 2, borderColor: T.woodLight },
+  modeName: { fontSize: 11, fontWeight: '700', color: T.silver, marginTop: 4 },
+  modeScore: { fontSize: 16, fontWeight: '800', color: T.woodLight, marginTop: 2 },
+  buttons: { gap: 10 },
+  btn: { flexDirection: 'row', alignItems: 'center', padding: 16, borderRadius: 12, gap: 12, backgroundColor: T.bgSecondary, borderWidth: 1.5 },
+  btnCol: { flex: 1 },
+  btnTitle: { fontSize: 16, fontWeight: '700' },
+  btnSub: { fontSize: 11, color: T.textSecondary, marginTop: 2 },
 });
