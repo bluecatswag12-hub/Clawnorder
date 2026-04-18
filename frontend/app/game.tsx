@@ -14,7 +14,6 @@ import { BACKEND_URL } from '../utils/api';
 import { Dice } from '../components/Dice';
 import { ScoreBoard } from '../components/ScoreBoard';
 import { WinnerModal } from '../components/WinnerModal';
-import { getScoringHints } from '../utils/gameLogic';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { recordMilestone } from './dice-shop';
@@ -46,7 +45,6 @@ export default function Game() {
   } = useGameStore();
 
   const currentPlayer = players[currentPlayerIndex];
-  const scoringHints = diceValues.length > 0 ? getScoringHints(diceValues) : [];
   const hasSelectedAny = selectedDice.some(Boolean);
   const canConfirmSelection = lastSelectionScore > 0 && hasSelectedAny;
   const canBank = currentPlayer.currentTurnScore > 0 && (turnPhase === 'rolling' || turnPhase === 'hothand');
@@ -236,7 +234,7 @@ export default function Game() {
                   value={value}
                   isRolling={isRolling}
                   isSelected={selectedDice[index] || false}
-                  isScoring={scoringHints[index] || false}
+                  isScoring={true}
                   onPress={() => handleToggleDie(index)}
                   disabled={turnPhase !== 'selecting'}
                   index={index}
@@ -258,7 +256,7 @@ export default function Game() {
               ) : lastSelectionBreakdown.length > 0 ? (
                 <Text style={styles.previewError}>{lastSelectionBreakdown[0]}</Text>
               ) : (
-                <Text style={styles.previewHint}>Tap scoring dice to select them</Text>
+                <Text style={styles.previewHint}>Tap dice to select them</Text>
               )}
             </View>
           )}

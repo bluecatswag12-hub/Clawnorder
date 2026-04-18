@@ -71,7 +71,7 @@ export const Dice: React.FC<DiceProps> = ({ value, isRolling, isSelected, isScor
 
   return (
     <Pressable onPress={onPress} disabled={disabled} testID={`dice-${index}`}>
-      <Animated.View style={[styles.diceContainer, animatedStyle, isSelected && styles.selectedDice, !isScoring && !isSelected && styles.nonScoringDice]}>
+      <Animated.View style={[styles.diceContainer, animatedStyle, isSelected && styles.selectedDice]}>
         <View style={[styles.diceFace, { backgroundColor: cw.faceColor, borderColor: isSelected ? '#4CAF50' : cw.borderColor }]}>
           {(DOT_POSITIONS[value] || []).map((pos, i) => (
             <View
@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
   diceContainer: { margin: 6, borderRadius: 12, padding: 2 },
   diceFace: { width: 52, height: 52, borderRadius: 10, borderWidth: 2, position: 'relative' },
   selectedDice: { borderColor: '#4CAF50', borderWidth: 3, borderRadius: 12, backgroundColor: 'rgba(76,175,80,0.15)' },
-  nonScoringDice: { opacity: 0.5 },
+  nonScoringDice: {},
   dot: {},
   checkMark: { position: 'absolute', top: -8, right: -8, width: 20, height: 20, borderRadius: 10, backgroundColor: '#4CAF50', justifyContent: 'center', alignItems: 'center', zIndex: 10 },
   checkMarkText: { color: '#fff', fontSize: 12, fontWeight: '800' },

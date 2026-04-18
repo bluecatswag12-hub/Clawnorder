@@ -14,7 +14,6 @@ import { Dice } from '../components/Dice';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { WinnerModal } from '../components/WinnerModal';
-import { getScoringHints } from '../utils/gameLogic';
 import { WinMode, WIN_THRESHOLDS, WIN_MODE_LABELS } from '../store/gameStore';
 
 import { BACKEND_URL } from '../utils/api';
@@ -117,11 +116,8 @@ export default function OnlineGame() {
 
   const isMyTurn = state.currentPlayerIndex === myIndex;
   const currentPlayer = state.players[state.currentPlayerIndex];
-  const myPlayer = state.players[myIndex];
-  const opponentPlayer = state.players[1 - myIndex];
   const winMode = (state.win_mode || 'ogs') as WinMode;
   const threshold = WIN_THRESHOLDS[winMode];
-  const scoringHints = state.diceValues.length > 0 ? getScoringHints(state.diceValues) : [];
   const hasSelectedAny = (state.selectedDice || []).some(Boolean);
   const canConfirm = state.lastSelectionScore > 0 && hasSelectedAny;
   const canBank = currentPlayer?.currentTurnScore > 0 && (state.turnPhase === 'rolling' || state.turnPhase === 'hothand');
@@ -262,7 +258,7 @@ export default function OnlineGame() {
                   value={val}
                   isRolling={false}
                   isSelected={state.selectedDice?.[idx] || false}
-                  isScoring={scoringHints[idx] || false}
+                  isScoring={true}
                   onPress={() => handleSelect(idx)}
                   disabled={!isMyTurn || state.turnPhase !== 'selecting'}
                   index={idx}
