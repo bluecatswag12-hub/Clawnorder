@@ -1,38 +1,43 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { useAudioPlayer } from 'expo-audio';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const MUTE_KEY = '@audio_muted';
-const THEME_URL = 'https://customer-assets.emergentagent.com/job_dice-point-chase/artifacts/k7zi28m5_8bit-ROLL%20IT%20UP%2031-8%201.wav.wav';
 
-// SFX assets
-const SFX_ROLL = require('../assets/audio/dice_roll.wav');
+// Audio URLs
+const TITLE_MUSIC_URL = 'https://customer-assets.emergentagent.com/job_dice-point-chase/artifacts/pjrz2luu_Game%20Title%20Music%20.mp3';
+const INGAME_MUSIC_URL = 'https://customer-assets.emergentagent.com/job_dice-point-chase/artifacts/4p1m1t64_In%20game%20music%20.mp3';
+const DICE_ROLL_URL = 'https://customer-assets.emergentagent.com/job_dice-point-chase/artifacts/epbjxtqc_Dice%20Roll%201%20.mp3';
+const CURSED_URL = 'https://customer-assets.emergentagent.com/job_dice-point-chase/artifacts/xz5kwlz0_Cursed%20Music%20.mp3';
+const VICTORY_URL = 'https://customer-assets.emergentagent.com/job_dice-point-chase/artifacts/8wi7vx3x_Victory%20Music%20.mp3';
+
+// Local SFX
 const SFX_SCORE = require('../assets/audio/score.wav');
-const SFX_BUST = require('../assets/audio/bust.wav');
-const SFX_WIN = require('../assets/audio/win.wav');
 const SFX_SELECT = require('../assets/audio/select.wav');
 
 interface AudioContextType {
   isMuted: boolean;
   toggleMute: () => void;
-  playMusic: () => void;
-  stopMusic: () => void;
+  playTitleMusic: () => void;
+  playIngameMusic: () => void;
+  stopAllMusic: () => void;
   sfxRoll: () => void;
   sfxScore: () => void;
-  sfxBust: () => void;
-  sfxWin: () => void;
+  sfxCursed: () => void;
+  sfxVictory: () => void;
   sfxSelect: () => void;
 }
 
 const AudioContext = createContext<AudioContextType>({
   isMuted: false,
   toggleMute: () => {},
-  playMusic: () => {},
-  stopMusic: () => {},
+  playTitleMusic: () => {},
+  playIngameMusic: () => {},
+  stopAllMusic: () => {},
   sfxRoll: () => {},
   sfxScore: () => {},
-  sfxBust: () => {},
-  sfxWin: () => {},
+  sfxCursed: () => {},
+  sfxVictory: () => {},
   sfxSelect: () => {},
 });
 
@@ -40,52 +45,70 @@ export const useAudio = () => useContext(AudioContext);
 
 export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isMuted, setIsMuted] = useState(false);
-  const [shouldPlay, setShouldPlay] = useState(false);
+  const [activeTrack, setActiveTrack] = useState<'title' | 'ingame' | 'none'>('none');
 
-  // Music player
-  const musicPlayer = useAudioPlayer(THEME_URL);
+  // Music players
+  const titlePlayer = useAudioPlayer(TITLE_MUSIC_URL);
+  const ingamePlayer = useAudioPlayer(INGAME_MUSIC_URL);
 
   // SFX players
-  const rollPlayer = useAudioPlayer(SFX_ROLL);
+  const rollPlayer = useAudioPlayer(DICE_ROLL_URL);
+  const cursedPlayer = useAudioPlayer(CURSED_URL);
+  const victoryPlayer = useAudioPlayer(VICTORY_URL);
   const scorePlayer = useAudioPlayer(SFX_SCORE);
-  const bustPlayer = useAudioPlayer(SFX_BUST);
-  const winPlayer = useAudioPlayer(SFX_WIN);
   const selectPlayer = useAudioPlayer(SFX_SELECT);
 
   // Load mute preference
   useEffect(() => {
     AsyncStorage.getItem(MUTE_KEY).then(val => {
-      const muted = val === 'true';
-      setIsMuted(muted);
-      if (!muted) setShouldPlay(true);
+      setIsMuted(val === 'true');
     }).catch(() => {});
   }, []);
 
-  // Music control
+  // Control title music
   useEffect(() => {
-    if (!musicPlayer) return;
-    musicPlayer.loop = true;
-    musicPlayer.volume = 0.4;
-    if (shouldPlay && !isMuted) {
-      musicPlayer.play();
+    if (!titlePlayer) return;
+    titlePlayer.loop = true;
+    titlePlayer.volume = 0.4;
+    if (activeTrack === 'title' && !isMuted) {
+      titlePlayer.play();
     } else {
-      musicPlayer.pause();
+      titlePlayer.pause();
     }
-  }, [shouldPlay, isMuted, musicPlayer]);
+  }, [activeTrack, isMuted, titlePlayer]);
+
+  // Control ingame music
+  useEffect(() => {
+    if (!ingamePlayer) return;
+    ingamePlayer.loop = true;
+    ingamePlayer.volume = 0.35;
+    if (activeTrack === 'ingame' && !isMuted) {
+      ingamePlayer.play();
+    } else {
+      ingamePlayer.pause();
+    }
+  }, [activeTrack, isMuted, ingamePlayer]);
 
   const toggleMute = () => {
     const newMuted = !isMuted;
     setIsMuted(newMuted);
     AsyncStorage.setItem(MUTE_KEY, newMuted ? 'true' : 'false').catch(() => {});
-    if (newMuted && musicPlayer) musicPlayer.pause();
-    else if (!newMuted && shouldPlay && musicPlayer) musicPlayer.play();
   };
 
-  const playMusic = () => setShouldPlay(true);
+  const playTitleMusic = () => {
+    if (ingamePlayer) ingamePlayer.pause();
+    setActiveTrack('title');
+  };
 
-  const stopMusic = () => {
-    setShouldPlay(false);
-    if (musicPlayer) musicPlayer.pause();
+  const playIngameMusic = () => {
+    if (titlePlayer) titlePlayer.pause();
+    setActiveTrack('ingame');
+  };
+
+  const stopAllMusic = () => {
+    setActiveTrack('none');
+    if (titlePlayer) titlePlayer.pause();
+    if (ingamePlayer) ingamePlayer.pause();
   };
 
   // SFX helpers
@@ -95,18 +118,22 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       player.seekTo(0);
       player.play();
     } catch (e) {
-      console.log('SFX play error:', e);
+      console.log('SFX error:', e);
     }
   };
 
   const sfxRoll = () => playSfx(rollPlayer);
   const sfxScore = () => playSfx(scorePlayer);
-  const sfxBust = () => playSfx(bustPlayer);
-  const sfxWin = () => playSfx(winPlayer);
+  const sfxCursed = () => playSfx(cursedPlayer);
+  const sfxVictory = () => playSfx(victoryPlayer);
   const sfxSelect = () => playSfx(selectPlayer);
 
   return (
-    <AudioContext.Provider value={{ isMuted, toggleMute, playMusic, stopMusic, sfxRoll, sfxScore, sfxBust, sfxWin, sfxSelect }}>
+    <AudioContext.Provider value={{
+      isMuted, toggleMute,
+      playTitleMusic, playIngameMusic, stopAllMusic,
+      sfxRoll, sfxScore, sfxCursed, sfxVictory, sfxSelect,
+    }}>
       {children}
     </AudioContext.Provider>
   );

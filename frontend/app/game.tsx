@@ -92,24 +92,24 @@ export default function Game() {
 
   const handlePlayAgain = () => resetGame();
 
-  const { stopMusic, playMusic, sfxRoll, sfxScore, sfxBust, sfxWin, sfxSelect } = useAudio();
+  const { stopAllMusic, playTitleMusic, playIngameMusic, sfxRoll, sfxScore, sfxCursed, sfxVictory, sfxSelect } = useAudio();
 
   const handleBackToMenu = () => {
     resetGame();
-    playMusic();
+    playTitleMusic();
     router.replace('/');
   };
 
   const handleViewLeaderboard = () => {
     resetGame();
-    playMusic();
+    playTitleMusic();
     router.replace('/leaderboard');
   };
 
-  // Stop bg music when game starts
+  // Play ingame music when game starts
   useEffect(() => {
-    stopMusic();
-    return () => { playMusic(); };
+    playIngameMusic();
+    return () => { playTitleMusic(); };
   }, []);
 
   // Auto-save game when there's a winner + record first_win milestone
@@ -159,18 +159,19 @@ export default function Game() {
     ]);
   };
 
-  // Bust SFX
+  // Cursed SFX + stop ingame music
   useEffect(() => {
     if (turnPhase === 'bust') {
-      sfxBust();
+      sfxCursed();
       try { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error); } catch (e) {}
     }
   }, [turnPhase]);
 
-  // Win SFX
+  // Victory SFX + stop ingame music
   useEffect(() => {
     if (winner) {
-      sfxWin();
+      stopAllMusic();
+      sfxVictory();
     }
   }, [winner]);
 

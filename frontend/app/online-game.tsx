@@ -53,7 +53,7 @@ export default function OnlineGame() {
   const roomCode = params.roomCode || '';
   const playerId = params.playerId || '';
   const myIndex = parseInt(params.playerIndex || '0');
-  const { stopMusic, playMusic } = useAudio();
+  const { stopMusic: stopAll, playMusic: playTitle, playIngameMusic } = useAudio();
 
   const [state, setState] = useState<RoomState | null>(null);
   const [loading, setLoading] = useState(true);
@@ -79,12 +79,12 @@ export default function OnlineGame() {
   }, [roomCode]);
 
   useEffect(() => {
-    stopMusic();
+    playIngameMusic();
     fetchState();
     pollRef.current = setInterval(fetchState, POLL_INTERVAL);
     return () => {
       if (pollRef.current) clearInterval(pollRef.current);
-      playMusic();
+      playTitle();
     };
   }, [fetchState]);
 

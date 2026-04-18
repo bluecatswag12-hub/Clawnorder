@@ -10,9 +10,9 @@ const WIN_MODES: WinMode[] = ['noobs', 'ogs', 'panthers'];
 
 export default function Index() {
   const { setWinMode, winMode } = useGameStore();
-  const { isMuted, toggleMute, playMusic } = useAudio();
+  const { isMuted, toggleMute, playTitleMusic } = useAudio();
 
-  useEffect(() => { playMusic(); }, []);
+  useEffect(() => { playTitleMusic(); }, []);
 
   return (
     <SafeAreaView style={s.container}>
