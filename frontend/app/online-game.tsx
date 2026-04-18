@@ -79,7 +79,6 @@ export default function OnlineGame() {
     clearSession();
     router.replace(path as any);
   };
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const fetchState = useCallback(async () => {
     if (!mountedRef.current) return;
