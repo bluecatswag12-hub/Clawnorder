@@ -1,12 +1,15 @@
 import { Stack } from 'expo-router';
+import { AudioProvider } from '../utils/AudioProvider';
 
 export default function Layout() {
   return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-        contentStyle: { backgroundColor: '#0d0d1a' },
-      }}
-    />
+    <AudioProvider>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: '#0d0d1a' },
+        }}
+      />
+    </AudioProvider>
   );
 }

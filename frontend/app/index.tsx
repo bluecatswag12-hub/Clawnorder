@@ -1,16 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  Pressable,
-  SafeAreaView,
-  ScrollView,
+  View, Text, StyleSheet, Pressable, SafeAreaView, ScrollView,
 } from 'react-native';
 import { router } from 'expo-router';
 import { useGameStore, WinMode, WIN_THRESHOLDS, WIN_MODE_LABELS } from '../store/gameStore';
 import { Ionicons } from '@expo/vector-icons';
-import { playBgMusic, loadMutePreference, getIsMuted, setMuted } from '../utils/audioManager';
+import { useAudio } from '../utils/AudioProvider';
 
 const WIN_MODES: WinMode[] = ['noobs', 'ogs', 'panthers'];
 const WIN_COLORS: Record<WinMode, string> = { noobs: '#4CAF50', ogs: '#2196F3', panthers: '#e91e63' };
@@ -18,43 +13,13 @@ const WIN_ICONS: Record<WinMode, string> = { noobs: 'happy', ogs: 'flame', panth
 
 export default function Index() {
   const { setWinMode, winMode } = useGameStore();
-  const [muted, setMutedState] = useState(false);
-  const [musicStarted, setMusicStarted] = useState(false);
+  const { isMuted, toggleMute, playMusic } = useAudio();
 
-  useEffect(() => {
-    loadMutePreference().then(() => {
-      setMutedState(getIsMuted());
-      // Try to play — will work on native, may be blocked on web until interaction
-      if (!getIsMuted()) playBgMusic().then(() => setMusicStarted(true)).catch(() => {});
-    });
-  }, []);
-
-  // On web, browsers block autoplay. This ensures music starts on first tap anywhere
-  const ensureMusic = () => {
-    if (!musicStarted && !muted) {
-      playBgMusic().then(() => setMusicStarted(true)).catch(() => {});
-    }
-  };
-
-  const toggleMute = async () => {
-    const newVal = !muted;
-    setMutedState(newVal);
-    await setMuted(newVal);
-    if (!newVal) {
-      playBgMusic().then(() => setMusicStarted(true));
-    } else {
-      setMusicStarted(false);
-    }
-  };
+  useEffect(() => { playMusic(); }, []);
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-        onScrollBeginDrag={ensureMusic}
-        onTouchStart={ensureMusic}
-      >
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerTop}>
@@ -65,7 +30,7 @@ export default function Index() {
               <Ionicons name="cube" size={32} color="#4CAF50" />
             </View>
             <Pressable testID="mute-btn" onPress={toggleMute} style={styles.muteBtn}>
-              <Ionicons name={muted ? 'volume-mute' : 'volume-high'} size={24} color={muted ? '#555' : '#fff'} />
+              <Ionicons name={isMuted ? 'volume-mute' : 'volume-high'} size={24} color={isMuted ? '#555' : '#fff'} />
             </Pressable>
           </View>
           <Text style={styles.title}>CLAW & ORDER</Text>
@@ -77,15 +42,7 @@ export default function Index() {
           <Text style={styles.sectionLabel}>Score Target</Text>
           <View style={styles.modeRow}>
             {WIN_MODES.map((mode) => (
-              <Pressable
-                key={mode}
-                testID={`mode-${mode}`}
-                style={[
-                  styles.modeCard,
-                  winMode === mode && { borderColor: WIN_COLORS[mode], backgroundColor: `${WIN_COLORS[mode]}18` },
-                ]}
-                onPress={() => setWinMode(mode)}
-              >
+              <Pressable key={mode} testID={`mode-${mode}`} style={[styles.modeCard, winMode === mode && { borderColor: WIN_COLORS[mode], backgroundColor: `${WIN_COLORS[mode]}18` }]} onPress={() => setWinMode(mode)}>
                 <Ionicons name={WIN_ICONS[mode] as any} size={22} color={winMode === mode ? WIN_COLORS[mode] : '#555'} />
                 <Text style={[styles.modeName, winMode === mode && { color: WIN_COLORS[mode] }]}>{WIN_MODE_LABELS[mode]}</Text>
                 <Text style={[styles.modeScore, winMode === mode && { color: WIN_COLORS[mode] }]}>{WIN_THRESHOLDS[mode]}</Text>
@@ -94,70 +51,35 @@ export default function Index() {
           </View>
         </View>
 
-        {/* Navigation Buttons */}
+        {/* Nav Buttons */}
         <View style={styles.buttonsContainer}>
-          <Pressable
-            testID="local-game-btn"
-            style={[styles.gameBtn, { backgroundColor: WIN_COLORS[winMode] }]}
-            onPress={() => router.push('/local-setup')}
-          >
+          <Pressable testID="local-game-btn" style={[styles.gameBtn, { backgroundColor: WIN_COLORS[winMode] }]} onPress={() => router.push('/local-setup')}>
             <Ionicons name="people" size={26} color="#fff" />
-            <View style={styles.btnTextCol}>
-              <Text style={styles.btnTitle}>Local Game</Text>
-              <Text style={styles.btnSub}>2-5 players, same device</Text>
-            </View>
+            <View style={styles.btnTextCol}><Text style={styles.btnTitle}>Local Game</Text><Text style={styles.btnSub}>2-5 players, same device</Text></View>
             <Ionicons name="chevron-forward" size={24} color="rgba(255,255,255,0.6)" />
           </Pressable>
 
-          <Pressable
-            testID="online-game-btn"
-            style={[styles.gameBtn, { backgroundColor: '#333' }]}
-            onPress={() => router.push('/online-lobby')}
-          >
+          <Pressable testID="online-game-btn" style={[styles.gameBtn, { backgroundColor: '#333' }]} onPress={() => router.push('/online-lobby')}>
             <Ionicons name="globe" size={26} color="#fff" />
-            <View style={styles.btnTextCol}>
-              <Text style={styles.btnTitle}>Online Game</Text>
-              <Text style={styles.btnSub}>Up to 5 players, room codes</Text>
-            </View>
+            <View style={styles.btnTextCol}><Text style={styles.btnTitle}>Online Game</Text><Text style={styles.btnSub}>Up to 5 players, room codes</Text></View>
             <Ionicons name="chevron-forward" size={24} color="rgba(255,255,255,0.6)" />
           </Pressable>
 
-          <Pressable
-            testID="rules-btn"
-            style={[styles.gameBtn, { backgroundColor: '#1a1a2e', borderWidth: 1, borderColor: '#ff9800' }]}
-            onPress={() => router.push('/rules')}
-          >
+          <Pressable testID="rules-btn" style={[styles.gameBtn, { backgroundColor: '#1a1a2e', borderWidth: 1, borderColor: '#ff9800' }]} onPress={() => router.push('/rules')}>
             <Ionicons name="book" size={26} color="#ff9800" />
-            <View style={styles.btnTextCol}>
-              <Text style={styles.btnTitle}>Rules</Text>
-              <Text style={[styles.btnSub, { color: '#ff9800' }]}>Scoring & how to play</Text>
-            </View>
+            <View style={styles.btnTextCol}><Text style={styles.btnTitle}>Rules</Text><Text style={[styles.btnSub, { color: '#ff9800' }]}>Scoring & how to play</Text></View>
             <Ionicons name="chevron-forward" size={24} color="#ff980066" />
           </Pressable>
 
-          <Pressable
-            testID="leaderboard-btn"
-            style={[styles.gameBtn, { backgroundColor: '#1a1a2e', borderWidth: 1, borderColor: '#e91e63' }]}
-            onPress={() => router.push('/leaderboard')}
-          >
+          <Pressable testID="leaderboard-btn" style={[styles.gameBtn, { backgroundColor: '#1a1a2e', borderWidth: 1, borderColor: '#e91e63' }]} onPress={() => router.push('/leaderboard')}>
             <Ionicons name="trophy" size={26} color="#e91e63" />
-            <View style={styles.btnTextCol}>
-              <Text style={styles.btnTitle}>Leaderboard</Text>
-              <Text style={[styles.btnSub, { color: '#e91e63' }]}>Daily & All-Time</Text>
-            </View>
+            <View style={styles.btnTextCol}><Text style={styles.btnTitle}>Leaderboard</Text><Text style={[styles.btnSub, { color: '#e91e63' }]}>Daily & All-Time</Text></View>
             <Ionicons name="chevron-forward" size={24} color="#e91e6366" />
           </Pressable>
 
-          <Pressable
-            testID="dice-shop-btn"
-            style={[styles.gameBtn, { backgroundColor: '#1a1a2e', borderWidth: 1, borderColor: '#80F2DD' }]}
-            onPress={() => router.push('/dice-shop')}
-          >
+          <Pressable testID="dice-shop-btn" style={[styles.gameBtn, { backgroundColor: '#1a1a2e', borderWidth: 1, borderColor: '#80F2DD' }]} onPress={() => router.push('/dice-shop')}>
             <Ionicons name="color-palette" size={26} color="#80F2DD" />
-            <View style={styles.btnTextCol}>
-              <Text style={styles.btnTitle}>Dice Shop</Text>
-              <Text style={[styles.btnSub, { color: '#80F2DD' }]}>Unlockable colorways</Text>
-            </View>
+            <View style={styles.btnTextCol}><Text style={styles.btnTitle}>Dice Shop</Text><Text style={[styles.btnSub, { color: '#80F2DD' }]}>Unlockable colorways</Text></View>
             <Ionicons name="chevron-forward" size={24} color="#80F2DD66" />
           </Pressable>
         </View>

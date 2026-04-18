@@ -18,7 +18,7 @@ import { getScoringHints } from '../utils/gameLogic';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { recordMilestone } from './dice-shop';
-import { stopBgMusic, playBgMusic } from '../utils/audioManager';
+import { useAudio } from '../utils/AudioProvider';
 
 export default function Game() {
   const {
@@ -89,22 +89,24 @@ export default function Game() {
 
   const handlePlayAgain = () => resetGame();
 
+  const { stopMusic, playMusic } = useAudio();
+
   const handleBackToMenu = () => {
     resetGame();
-    playBgMusic();
+    playMusic();
     router.replace('/');
   };
 
   const handleViewLeaderboard = () => {
     resetGame();
-    playBgMusic();
+    playMusic();
     router.replace('/leaderboard');
   };
 
   // Stop bg music when game starts
   useEffect(() => {
-    stopBgMusic();
-    return () => { playBgMusic(); };
+    stopMusic();
+    return () => { playMusic(); };
   }, []);
 
   // Auto-save game when there's a winner + record first_win milestone
@@ -112,24 +114,21 @@ export default function Game() {
   useEffect(() => {
     if (winner && !savedRef.current) {
       savedRef.current = true;
-      // Record first win milestone
       recordMilestone('first_win');
-      const winnerPlayer = players.find(p => p.name === winner);
-      const loserPlayer = players.find(p => p.name !== winner);
-      if (winnerPlayer && loserPlayer) {
-        fetch(`${BACKEND_URL}/api/games/save`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            player1_name: players[0].name,
-            player2_name: players[1].name,
-            player1_score: players[0].totalScore,
-            player2_score: players[1].totalScore,
-            winner_name: winner,
-            win_mode: winMode,
-          }),
-        }).catch(e => console.error('Failed to save game:', e));
-      }
+      // Save game to backend - support any number of players
+      const sorted = [...players].sort((a, b) => b.totalScore - a.totalScore);
+      fetch(`${BACKEND_URL}/api/games/save`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          player1_name: sorted[0]?.name || 'P1',
+          player2_name: sorted[1]?.name || 'P2',
+          player1_score: sorted[0]?.totalScore || 0,
+          player2_score: sorted[1]?.totalScore || 0,
+          winner_name: winner,
+          win_mode: winMode,
+        }),
+      }).catch(e => console.error('Failed to save game:', e));
     }
     if (!winner) {
       savedRef.current = false;
