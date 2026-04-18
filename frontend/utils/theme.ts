@@ -34,5 +34,5 @@ export const WIN_COLORS: Record<string, string> = {
 export const WIN_ICONS: Record<string, string> = {
   noobs: 'flag',
   ogs: 'shield',
-  panthers: 'crown',
+  panthers: 'ribbon',
 };
