@@ -23,22 +23,32 @@ export const GameChat: React.FC<GameChatProps> = ({ roomCode, playerId, playerNa
   const [messages, setMessages] = useState<ChatMsg[]>([]);
   const [input, setInput] = useState('');
   const [unread, setUnread] = useState(0);
-  const lastTs = useRef('');
+  const seenKeys = useRef(new Set<string>());
   const flatRef = useRef<FlatList>(null);
 
   const fetchMessages = useCallback(async () => {
     try {
-      const res = await fetch(`${BACKEND_URL}/api/rooms/${roomCode}/chat?after=${lastTs.current}`);
+      const res = await fetch(`${BACKEND_URL}/api/rooms/${roomCode}/chat`);
       const data = await res.json();
       if (Array.isArray(data) && data.length > 0) {
-        setMessages(prev => [...prev, ...data].slice(-50));
-        lastTs.current = data[data.length - 1].timestamp;
-        if (!visible) setUnread(prev => prev + data.length);
+        const newMsgs: ChatMsg[] = [];
+        data.forEach((m: ChatMsg) => {
+          const key = `${m.timestamp}_${m.player_name}_${m.message}`;
+          if (!seenKeys.current.has(key)) {
+            seenKeys.current.add(key);
+            newMsgs.push(m);
+          }
+        });
+        if (newMsgs.length > 0) {
+          setMessages(prev => [...prev, ...newMsgs].slice(-50));
+          if (!visible) setUnread(prev => prev + newMsgs.length);
+        }
       }
     } catch {}
   }, [roomCode, visible]);
 
   useEffect(() => {
+    fetchMessages();
     const interval = setInterval(fetchMessages, 2000);
     return () => clearInterval(interval);
   }, [fetchMessages]);
@@ -57,7 +67,8 @@ export const GameChat: React.FC<GameChatProps> = ({ roomCode, playerId, playerNa
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ player_id: playerId, message: msg }),
       });
-      fetchMessages();
+      // Fetch immediately to show own message
+      setTimeout(fetchMessages, 300);
     } catch {}
   };
 
