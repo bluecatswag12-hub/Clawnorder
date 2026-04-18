@@ -17,6 +17,7 @@ import { WinnerModal } from '../components/WinnerModal';
 import { getScoringHints } from '../utils/gameLogic';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
+import { recordMilestone } from './dice-shop';
 
 export default function Game() {
   const {
@@ -97,11 +98,13 @@ export default function Game() {
     router.replace('/leaderboard');
   };
 
-  // Auto-save game when there's a winner
+  // Auto-save game when there's a winner + record first_win milestone
   const savedRef = useRef(false);
   useEffect(() => {
     if (winner && !savedRef.current) {
       savedRef.current = true;
+      // Record first win milestone
+      recordMilestone('first_win');
       const winnerPlayer = players.find(p => p.name === winner);
       const loserPlayer = players.find(p => p.name !== winner);
       if (winnerPlayer && loserPlayer) {
@@ -123,6 +126,20 @@ export default function Game() {
       savedRef.current = false;
     }
   }, [winner]);
+
+  // Record hot hand milestone
+  useEffect(() => {
+    if (turnPhase === 'hothand') {
+      recordMilestone('first_hothand');
+    }
+  }, [turnPhase]);
+
+  // Record full straight milestone when breakdown contains 123456
+  useEffect(() => {
+    if (currentRollBreakdown.some(b => b.includes('123456'))) {
+      recordMilestone('first_straight');
+    }
+  }, [currentRollBreakdown]);
 
   const handleQuit = () => {
     Alert.alert('Quit Game', 'Progress will be lost.', [

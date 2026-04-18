@@ -8,7 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const ALL_COLORWAYS = [
   { id: 'classic', faceColor: '#ffffff', dotColor: '#222222', borderColor: '#333333' },
   { id: 'midnight', faceColor: '#1a1a2e', dotColor: '#ff5722', borderColor: '#ff5722' },
-  { id: 'ocean', faceColor: '#0d47a1', dotColor: '#e3f2fd', borderColor: '#2196F3' },
+  { id: 'ocean', faceColor: '#0d47a1', dotColor: '#e3f2fd', borderColor: '#42a5f5' },
   { id: 'toxic', faceColor: '#1b1b1b', dotColor: '#76ff03', borderColor: '#76ff03' },
   { id: 'aqua', faceColor: '#0d0d1a', dotColor: '#80F2DD', borderColor: '#80F2DD' },
 ];
