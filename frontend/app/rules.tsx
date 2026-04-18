@@ -30,57 +30,57 @@ export default function Rules() {
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <Section title="How to Play">
-          <Text style={styles.bodyText}>1. Roll all 6 dice</Text>
-          <Text style={styles.bodyText}>2. If no scoring dice appear → BUST! Lose all turn points</Text>
-          <Text style={styles.bodyText}>3. Tap scoring dice to select them</Text>
-          <Text style={styles.bodyText}>4. Choose: Keep & Roll (re-roll remaining) or Bank (save points)</Text>
-          <Text style={styles.bodyText}>5. First player to hit the target score wins!</Text>
+          <Text style={styles.bodyText}>1. Cast all 6 bones</Text>
+          <Text style={styles.bodyText}>2. If no scoring bones appear → CURSED! Lose all turn gold</Text>
+          <Text style={styles.bodyText}>3. Tap scoring bones to select them</Text>
+          <Text style={styles.bodyText}>4. Choose: Keep & Cast (re-roll remaining) or Hoard (save gold)</Text>
+          <Text style={styles.bodyText}>5. First player to hit the target gold wins!</Text>
         </Section>
 
-        <Section title="Hot Hand">
-          <Text style={styles.highlight}>Score all 6 dice in one turn → Hot Hand!</Text>
-          <Text style={styles.bodyText}>Choose to bank your points and pass, or bank and continue rolling with a fresh set of 6 dice.</Text>
+        <Section title="Dragon's Favor">
+          <Text style={styles.highlight}>Score all 6 bones in one turn → Dragon's Favor!</Text>
+          <Text style={styles.bodyText}>Choose to hoard your gold and pass, or hoard and continue casting with a fresh set of 6 bones.</Text>
         </Section>
 
-        <Section title="Single Dice">
-          <Rule left="1" right="100 pts" color="#2E7D32" />
-          <Rule left="5" right="50 pts" color="#2E7D32" />
+        <Section title="Single Bones">
+          <Rule left="1" right="100 gold" color="#2E7D32" />
+          <Rule left="5" right="50 gold" color="#2E7D32" />
           <Text style={styles.note}>2, 3, 4, 6 alone are worth nothing</Text>
         </Section>
 
         <Section title="Three of a Kind">
-          <Rule left="111" right="1,000 pts" color="#D4AF37" />
-          <Rule left="222" right="200 pts" />
-          <Rule left="333" right="300 pts" />
-          <Rule left="444" right="400 pts" />
-          <Rule left="555" right="500 pts" color="#D4AF37" />
-          <Rule left="666" right="600 pts" />
+          <Rule left="111" right="1,000 gold" color="#D4AF37" />
+          <Rule left="222" right="200 gold" />
+          <Rule left="333" right="300 gold" />
+          <Rule left="444" right="400 gold" />
+          <Rule left="555" right="500 gold" color="#D4AF37" />
+          <Rule left="666" right="600 gold" />
         </Section>
 
         <Section title="Extra Dice Multiplier">
           <Text style={styles.bodyText}>Each extra die beyond 3 of a kind doubles the score:</Text>
-          <Rule left="2222 (4 dice)" right="200 × 2 = 400 pts" color="#FF9E3D" />
-          <Rule left="22222 (5 dice)" right="200 × 4 = 800 pts" color="#FF9E3D" />
-          <Rule left="222222 (6 dice)" right="200 × 8 = 1,600 pts" color="#FF9E3D" />
-          <Rule left="1111 (4 ones)" right="1,000 × 2 = 2,000 pts" color="#FF9E3D" />
+          <Rule left="2222 (4 dice)" right="200 × 2 = 400 gold" color="#FF9E3D" />
+          <Rule left="22222 (5 dice)" right="200 × 4 = 800 gold" color="#FF9E3D" />
+          <Rule left="222222 (6 dice)" right="200 × 8 = 1,600 gold" color="#FF9E3D" />
+          <Rule left="1111 (4 ones)" right="1,000 × 2 = 2,000 gold" color="#FF9E3D" />
         </Section>
 
         <Section title="Straights">
-          <Rule left="1-2-3-4-5" right="500 pts" color="#FF9E3D" />
-          <Rule left="2-3-4-5-6" right="750 pts" color="#FF9E3D" />
-          <Rule left="1-2-3-4-5-6" right="1,500 pts" color="#FF9E3D" />
+          <Rule left="1-2-3-4-5" right="500 gold" color="#FF9E3D" />
+          <Rule left="2-3-4-5-6" right="750 gold" color="#FF9E3D" />
+          <Rule left="1-2-3-4-5-6" right="1,500 gold" color="#FF9E3D" />
           <Text style={styles.note}>Straights can combine with leftover 1s or 5s</Text>
         </Section>
 
-        <Section title="Win Modes">
-          <Rule left="Noobs" right="1,500 pts" color="#2E7D32" />
-          <Rule left="OGs" right="3,000 pts" color="#FF9E3D" />
-          <Rule left="Panthers" right="5,000 pts" color="#D4AF37" />
+        <Section title="Thy Challenge">
+          <Rule left="Peasants" right="1,500 gold" color="#2E7D32" />
+          <Rule left="Knights" right="3,000 gold" color="#FF9E3D" />
+          <Rule left="Royals" right="5,000 gold" color="#D4AF37" />
         </Section>
 
-        <Section title="BUST">
-          <Text style={styles.highlight}>If you roll and NO dice are scoring (no 1s, 5s, or combos), it's a BUST!</Text>
-          <Text style={styles.bodyText}>You lose ALL points accumulated this turn and your turn ends.</Text>
+        <Section title="CURSED!">
+          <Text style={styles.highlight}>If you cast and NO bones are scoring (no 1s, 5s, or combos), you are CURSED!</Text>
+          <Text style={styles.bodyText}>You lose ALL gold accumulated this turn and your turn ends.</Text>
         </Section>
       </ScrollView>
     </SafeAreaView>
