@@ -65,7 +65,7 @@ export default function Index() {
           </Pressable>
 
           <Pressable testID="rules-btn" style={[s.btn, { borderColor: T.parchmentDark }]} onPress={() => router.push('/rules')}>
-            <Ionicons name="scroll" size={24} color={T.parchment} />
+            <Ionicons name="document-text" size={24} color={T.parchment} />
             <View style={s.btnCol}><Text style={[s.btnTitle, { color: T.parchment }]}>The Scrolls</Text><Text style={s.btnSub}>Rules of the realm</Text></View>
             <Ionicons name="chevron-forward" size={20} color={T.woodLight} />
           </Pressable>

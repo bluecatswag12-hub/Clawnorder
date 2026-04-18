@@ -32,7 +32,7 @@ export const WIN_COLORS: Record<string, string> = {
 
 // Win mode icons
 export const WIN_ICONS: Record<string, string> = {
-  noobs: 'leaf',
+  noobs: 'flag',
   ogs: 'shield',
-  panthers: 'ribbon',
+  panthers: 'crown',
 };
