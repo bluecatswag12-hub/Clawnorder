@@ -53,24 +53,26 @@ Example: 2222 = 200 × 2 = 400, 22222 = 200 × 4 = 800
 
 ## Features Implemented
 - [x] Home screen with game mode selector (Noobs/OGs/Panthers)
-- [x] Player name customization
-- [x] Local multiplayer (same device)
+- [x] **Rules screen** — dedicated scoring & how-to-play page
+- [x] **Local setup screen** — choose 2-5 players, enter names, then start
+- [x] **Online lobby** — enter name, create/join rooms, see players join in real-time
+- [x] **Up to 5 players** in both local and online modes
 - [x] Dice rolling with animations
 - [x] Tap-to-select dice mechanic
 - [x] Scoring validation (prevents selecting non-scoring dice)
 - [x] BUST detection
 - [x] Hot Hand bonus (clear all dice → fresh roll)
-- [x] Turn switching with visual indicators
-- [x] Winner modal with play again/menu options
+- [x] Turn rotation through all players
+- [x] Winner modal with all players' scores
 - [x] Score breakdown display
 - [x] Progress bars toward win threshold
 - [x] Haptic feedback
 - [x] Backend API for score validation, game history, stats, leaderboard
-- [x] **Daily Leaderboard** - Shows today's wins & points, resets at midnight UTC
-- [x] **All-Time Leaderboard** - Shows cumulative wins & total points
-- [x] **Challenge Friends (Share)** - Share game results via native share sheet
-- [x] **Auto-save Games** - Games auto-save to backend on win for leaderboard tracking
-- [x] **Leaderboard Screen** - Accessible from home, Daily/All-Time tabs, pull-to-refresh
+- [x] Daily Leaderboard — resets at midnight UTC
+- [x] All-Time Leaderboard
+- [x] Challenge Friends (Share) via native share sheet
+- [x] Auto-save Games to backend on win
+- [x] Leaderboard Screen with Daily/All-Time tabs
 
 ## Future Enhancements
 - [ ] Online multiplayer with room codes (Socket.IO)

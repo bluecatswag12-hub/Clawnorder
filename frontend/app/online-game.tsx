@@ -382,9 +382,7 @@ export default function OnlineGame() {
           visible={true}
           winnerName={state.winner}
           winMode={winMode}
-          winnerScore={state.players.find(p => p.name === state.winner)?.totalScore || 0}
-          loserName={state.players.find(p => p.name !== state.winner)?.name || ''}
-          loserScore={state.players.find(p => p.name !== state.winner)?.totalScore || 0}
+          players={state.players.map(p => ({ name: p.name, totalScore: p.totalScore, currentTurnScore: p.currentTurnScore }))}
           onPlayAgain={() => router.replace('/')}
           onBackToMenu={() => router.replace('/')}
           onViewLeaderboard={() => router.replace('/leaderboard')}

@@ -4,17 +4,8 @@ import { rollDice, calculateSelectedScore, hasAnyScoringDice } from '../utils/ga
 export type GameMode = 'menu' | 'local' | 'online';
 export type WinMode = 'noobs' | 'ogs' | 'panthers';
 
-export const WIN_THRESHOLDS: Record<WinMode, number> = {
-  noobs: 1500,
-  ogs: 3000,
-  panthers: 5000,
-};
-
-export const WIN_MODE_LABELS: Record<WinMode, string> = {
-  noobs: 'Noobs',
-  ogs: 'OGs',
-  panthers: 'Panthers',
-};
+export const WIN_THRESHOLDS: Record<WinMode, number> = { noobs: 1500, ogs: 3000, panthers: 5000 };
+export const WIN_MODE_LABELS: Record<WinMode, string> = { noobs: 'Noobs', ogs: 'OGs', panthers: 'Panthers' };
 
 export interface Player {
   name: string;
@@ -27,12 +18,12 @@ export type TurnPhase = 'rolling' | 'selecting' | 'bust' | 'hothand';
 export interface GameState {
   mode: GameMode;
   winMode: WinMode;
-  players: [Player, Player];
-  currentPlayerIndex: 0 | 1;
+  players: Player[];
+  currentPlayerIndex: number;
   diceValues: number[];
-  diceCount: number; // how many dice to roll (decreases as dice are kept)
-  selectedDice: boolean[]; // which dice are selected by player
-  keptDice: number[]; // dice kept from previous selections this turn
+  diceCount: number;
+  selectedDice: boolean[];
+  keptDice: number[];
   turnPhase: TurnPhase;
   currentRollScore: number;
   currentRollBreakdown: string[];
@@ -41,12 +32,11 @@ export interface GameState {
   winner: string | null;
   isRolling: boolean;
   gameId: string | null;
-  hasRolled: boolean; // whether the player has rolled this turn
+  hasRolled: boolean;
 
-  // Actions
   setMode: (mode: GameMode) => void;
   setWinMode: (winMode: WinMode) => void;
-  setPlayerNames: (player1: string, player2: string) => void;
+  setPlayerNames: (...names: string[]) => void;
   rollDiceAction: () => void;
   toggleDieSelection: (index: number) => void;
   confirmSelection: () => void;
@@ -58,15 +48,13 @@ export interface GameState {
   updateFromServer: (data: any) => void;
 }
 
-const initialPlayers: [Player, Player] = [
-  { name: 'Player 1', totalScore: 0, currentTurnScore: 0 },
-  { name: 'Player 2', totalScore: 0, currentTurnScore: 0 },
-];
-
 export const useGameStore = create<GameState>((set, get) => ({
   mode: 'menu',
   winMode: 'ogs',
-  players: initialPlayers,
+  players: [
+    { name: 'Player 1', totalScore: 0, currentTurnScore: 0 },
+    { name: 'Player 2', totalScore: 0, currentTurnScore: 0 },
+  ],
   currentPlayerIndex: 0,
   diceValues: [],
   diceCount: 6,
@@ -85,19 +73,19 @@ export const useGameStore = create<GameState>((set, get) => ({
   setMode: (mode) => set({ mode }),
   setWinMode: (winMode) => set({ winMode }),
 
-  setPlayerNames: (player1, player2) => {
-    set((state) => ({
-      players: [
-        { ...state.players[0], name: player1 || 'Player 1' },
-        { ...state.players[1], name: player2 || 'Player 2' },
-      ],
-    }));
+  setPlayerNames: (...names: string[]) => {
+    set({
+      players: names.map((n, i) => ({
+        name: n || `Player ${i + 1}`,
+        totalScore: 0,
+        currentTurnScore: 0,
+      })),
+    });
   },
 
   rollDiceAction: () => {
     const state = get();
     if (state.isRolling || state.winner) return;
-
     set({ isRolling: true });
 
     setTimeout(() => {
@@ -105,7 +93,6 @@ export const useGameStore = create<GameState>((set, get) => ({
       const isBust = !hasAnyScoringDice(newDice);
 
       if (isBust) {
-        // BUST - lose all current turn points
         set((s) => ({
           diceValues: newDice,
           selectedDice: new Array(newDice.length).fill(false),
@@ -117,16 +104,10 @@ export const useGameStore = create<GameState>((set, get) => ({
           isRolling: false,
           hasRolled: true,
           players: s.players.map((p, i) =>
-            i === s.currentPlayerIndex
-              ? { ...p, currentTurnScore: 0 }
-              : p
-          ) as [Player, Player],
+            i === s.currentPlayerIndex ? { ...p, currentTurnScore: 0 } : p
+          ),
         }));
-
-        // Auto-switch turn after showing bust
-        setTimeout(() => {
-          get().switchTurn();
-        }, 2000);
+        setTimeout(() => { get().switchTurn(); }, 2000);
       } else {
         set({
           diceValues: newDice,
@@ -146,17 +127,13 @@ export const useGameStore = create<GameState>((set, get) => ({
   toggleDieSelection: (index) => {
     const state = get();
     if (state.turnPhase !== 'selecting') return;
-
     const newSelected = [...state.selectedDice];
     newSelected[index] = !newSelected[index];
-
-    // Calculate preview score for selected dice
     const selectedValues = state.diceValues.filter((_, i) => newSelected[i]);
-    let preview = { score: 0, breakdown: [] as string[], isValid: false };
+    let preview = { score: 0, breakdown: [] as string[], isValid: false, errorMessage: '' };
     if (selectedValues.length > 0) {
       preview = calculateSelectedScore(selectedValues);
     }
-
     set({
       selectedDice: newSelected,
       lastSelectionScore: preview.isValid ? preview.score : 0,
@@ -168,90 +145,78 @@ export const useGameStore = create<GameState>((set, get) => ({
     const state = get();
     const selectedValues = state.diceValues.filter((_, i) => state.selectedDice[i]);
     const result = calculateSelectedScore(selectedValues);
-
     if (!result.isValid) return;
 
-    const currentPlayer = state.players[state.currentPlayerIndex];
-    const newTurnScore = currentPlayer.currentTurnScore + result.score;
-    const remainingDice = state.diceValues.filter((_, i) => !state.selectedDice[i]);
-    const newKeptDice = [...state.keptDice, ...selectedValues];
+    const newTurnScore = state.players[state.currentPlayerIndex].currentTurnScore + result.score;
+    const remaining = state.diceValues.filter((_, i) => !state.selectedDice[i]);
+    const newKept = [...state.keptDice, ...selectedValues];
 
-    // Check if all dice are used (hot hand!)
-    if (remainingDice.length === 0) {
+    if (remaining.length === 0) {
       set((s) => ({
         turnPhase: 'hothand',
-        keptDice: newKeptDice,
+        keptDice: newKept,
         diceCount: 6,
+        diceValues: [],
+        selectedDice: [],
         currentRollScore: result.score,
         currentRollBreakdown: result.breakdown,
         players: s.players.map((p, i) =>
-          i === s.currentPlayerIndex
-            ? { ...p, currentTurnScore: newTurnScore }
-            : p
-        ) as [Player, Player],
+          i === s.currentPlayerIndex ? { ...p, currentTurnScore: newTurnScore } : p
+        ),
       }));
     } else {
       set((s) => ({
-        keptDice: newKeptDice,
-        diceCount: remainingDice.length,
-        diceValues: remainingDice,
-        selectedDice: new Array(remainingDice.length).fill(false),
+        keptDice: newKept,
+        diceCount: remaining.length,
+        diceValues: remaining,
+        selectedDice: new Array(remaining.length).fill(false),
         currentRollScore: result.score,
         currentRollBreakdown: result.breakdown,
         lastSelectionScore: 0,
         lastSelectionBreakdown: [],
-        turnPhase: 'rolling', // ready to roll again or bank
+        turnPhase: 'rolling',
         players: s.players.map((p, i) =>
-          i === s.currentPlayerIndex
-            ? { ...p, currentTurnScore: newTurnScore }
-            : p
-        ) as [Player, Player],
+          i === s.currentPlayerIndex ? { ...p, currentTurnScore: newTurnScore } : p
+        ),
       }));
     }
   },
 
   bankPoints: () => {
     const state = get();
-    const currentPlayer = state.players[state.currentPlayerIndex];
-    const newTotalScore = currentPlayer.totalScore + currentPlayer.currentTurnScore;
+    const cp = state.players[state.currentPlayerIndex];
+    const newTotal = cp.totalScore + cp.currentTurnScore;
     const threshold = WIN_THRESHOLDS[state.winMode];
 
-    if (newTotalScore >= threshold) {
+    if (newTotal >= threshold) {
       set({
         players: state.players.map((p, i) =>
-          i === state.currentPlayerIndex
-            ? { ...p, totalScore: newTotalScore, currentTurnScore: 0 }
-            : p
-        ) as [Player, Player],
-        winner: currentPlayer.name,
+          i === state.currentPlayerIndex ? { ...p, totalScore: newTotal, currentTurnScore: 0 } : p
+        ),
+        winner: cp.name,
       });
     } else {
       set({
         players: state.players.map((p, i) =>
-          i === state.currentPlayerIndex
-            ? { ...p, totalScore: newTotalScore, currentTurnScore: 0 }
-            : p
-        ) as [Player, Player],
+          i === state.currentPlayerIndex ? { ...p, totalScore: newTotal, currentTurnScore: 0 } : p
+        ),
       });
       get().switchTurn();
     }
   },
 
   bankAndContinue: () => {
-    // Hot hand: bank current turn points and continue with fresh 6 dice
     const state = get();
-    const currentPlayer = state.players[state.currentPlayerIndex];
-    const newTotalScore = currentPlayer.totalScore + currentPlayer.currentTurnScore;
+    const cp = state.players[state.currentPlayerIndex];
+    const newTotal = cp.totalScore + cp.currentTurnScore;
     const threshold = WIN_THRESHOLDS[state.winMode];
 
-    if (newTotalScore >= threshold) {
+    if (newTotal >= threshold) {
       set({
         players: state.players.map((p, i) =>
-          i === state.currentPlayerIndex
-            ? { ...p, totalScore: newTotalScore, currentTurnScore: 0 }
-            : p
-        ) as [Player, Player],
-        winner: currentPlayer.name,
+          i === state.currentPlayerIndex ? { ...p, totalScore: newTotal, currentTurnScore: 0 } : p
+        ),
+        winner: cp.name,
       });
     } else {
       set({
@@ -266,41 +231,35 @@ export const useGameStore = create<GameState>((set, get) => ({
         lastSelectionBreakdown: [],
         hasRolled: false,
         players: state.players.map((p, i) =>
-          i === state.currentPlayerIndex
-            ? { ...p, totalScore: newTotalScore, currentTurnScore: 0 }
-            : p
-        ) as [Player, Player],
+          i === state.currentPlayerIndex ? { ...p, totalScore: newTotal, currentTurnScore: 0 } : p
+        ),
       });
     }
   },
 
   switchTurn: () => {
-    set((state) => ({
-      currentPlayerIndex: state.currentPlayerIndex === 0 ? 1 : 0,
-      players: state.players.map((p) => ({
-        ...p,
-        currentTurnScore: 0,
-      })) as [Player, Player],
-      diceValues: [],
-      diceCount: 6,
-      selectedDice: [],
-      keptDice: [],
-      turnPhase: 'rolling',
-      currentRollScore: 0,
-      currentRollBreakdown: [],
-      lastSelectionScore: 0,
-      lastSelectionBreakdown: [],
-      isBust: false,
-      hasRolled: false,
-    }));
+    set((state) => {
+      const nextIndex = (state.currentPlayerIndex + 1) % state.players.length;
+      return {
+        currentPlayerIndex: nextIndex,
+        players: state.players.map((p) => ({ ...p, currentTurnScore: 0 })),
+        diceValues: [],
+        diceCount: 6,
+        selectedDice: [],
+        keptDice: [],
+        turnPhase: 'rolling',
+        currentRollScore: 0,
+        currentRollBreakdown: [],
+        lastSelectionScore: 0,
+        lastSelectionBreakdown: [],
+        hasRolled: false,
+      };
+    });
   },
 
   resetGame: () => {
-    set({
-      players: [
-        { name: get().players[0].name, totalScore: 0, currentTurnScore: 0 },
-        { name: get().players[1].name, totalScore: 0, currentTurnScore: 0 },
-      ],
+    set((state) => ({
+      players: state.players.map((p) => ({ ...p, totalScore: 0, currentTurnScore: 0 })),
       currentPlayerIndex: 0,
       diceValues: [],
       diceCount: 6,
@@ -315,7 +274,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       isRolling: false,
       gameId: null,
       hasRolled: false,
-    });
+    }));
   },
 
   setGameId: (id) => set({ gameId: id }),

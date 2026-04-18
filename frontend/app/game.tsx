@@ -346,9 +346,7 @@ export default function Game() {
         visible={!!winner}
         winnerName={winner || ''}
         winMode={winMode}
-        winnerScore={players.find(p => p.name === winner)?.totalScore || 0}
-        loserName={players.find(p => p.name !== winner)?.name || ''}
-        loserScore={players.find(p => p.name !== winner)?.totalScore || 0}
+        players={players}
         onPlayAgain={handlePlayAgain}
         onBackToMenu={handleBackToMenu}
         onViewLeaderboard={handleViewLeaderboard}

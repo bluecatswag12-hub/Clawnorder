@@ -261,8 +261,8 @@ async def join_room(req: JoinRoomRequest):
     if code not in game_rooms:
         return {'error': 'Room not found'}
     room = game_rooms[code]
-    if len(room['players']) >= 2:
-        return {'error': 'Room is full'}
+    if len(room['players']) >= 5:
+        return {'error': 'Room is full (max 5 players)'}
     player_id = str(uuid.uuid4())[:8]
     room['players'].append({'id': player_id, 'name': req.player_name, 'total_score': 0, 'current_turn_score': 0})
     room['turn_phase'] = 'rolling'
@@ -403,7 +403,7 @@ async def room_bank_points(room_code: str, req: RoomActionRequest):
         room['winner'] = current['name']
     else:
         # Switch turn
-        room['current_player_index'] = 1 - room['current_player_index']
+        room['current_player_index'] = (room['current_player_index'] + 1) % len(room['players'])
         for p in room['players']:
             p['current_turn_score'] = 0
 
@@ -463,7 +463,7 @@ async def room_bust_next_turn(room_code: str, req: RoomActionRequest):
         return {'error': 'Room not found'}
     room = game_rooms[code]
 
-    room['current_player_index'] = 1 - room['current_player_index']
+    room['current_player_index'] = (room['current_player_index'] + 1) % len(room['players'])
     for p in room['players']:
         p['current_turn_score'] = 0
     room['dice_values'] = []
