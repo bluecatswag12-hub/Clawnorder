@@ -61,13 +61,30 @@ export default function OnlineGame() {
   const [chatVisible, setChatVisible] = useState(false);
   const lastActionRef = useRef('');
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const mountedRef = useRef(true);
+
+  const stopPolling = () => {
+    if (pollRef.current) {
+      clearInterval(pollRef.current);
+      pollRef.current = null;
+    }
+  };
+
+  const safeNavigate = (path: string) => {
+    mountedRef.current = false;
+    stopPolling();
+    stopAll();
+    playTitle();
+    router.replace(path as any);
+  };
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const fetchState = useCallback(async () => {
+    if (!mountedRef.current) return;
     try {
       const res = await fetch(`${BACKEND_URL}/api/rooms/${roomCode}/state`);
       const data = await res.json();
-      if (data.error) return;
-      // Only update if there's a new action (avoid flickering)
+      if (data.error || !mountedRef.current) return;
       if (data.lastActionAt !== lastActionRef.current) {
         lastActionRef.current = data.lastActionAt;
         setState(data);
@@ -79,11 +96,13 @@ export default function OnlineGame() {
   }, [roomCode]);
 
   useEffect(() => {
+    mountedRef.current = true;
     playIngameMusic();
     fetchState();
     pollRef.current = setInterval(fetchState, POLL_INTERVAL);
     return () => {
-      if (pollRef.current) clearInterval(pollRef.current);
+      mountedRef.current = false;
+      stopPolling();
       playTitle();
     };
   }, [fetchState]);
@@ -135,6 +154,7 @@ export default function OnlineGame() {
   const canRoll = state.turnPhase === 'rolling' && isMyTurn && !acting;
 
   const apiAction = async (endpoint: string, body: any = {}) => {
+    if (!mountedRef.current) return;
     setActing(true);
     try {
       const res = await fetch(`${BACKEND_URL}/api/rooms/${roomCode}/${endpoint}`, {
@@ -143,6 +163,7 @@ export default function OnlineGame() {
         body: JSON.stringify({ player_id: playerId, ...body }),
       });
       const data = await res.json();
+      if (!mountedRef.current) return;
       if (data.error) {
         Alert.alert('Error', data.error);
       } else {
@@ -150,9 +171,9 @@ export default function OnlineGame() {
         setState(data);
       }
     } catch (e) {
-      Alert.alert('Error', 'Network error');
+      if (mountedRef.current) Alert.alert('Error', 'Network error');
     }
-    setActing(false);
+    if (mountedRef.current) setActing(false);
   };
 
   const handleRoll = () => {
@@ -192,7 +213,7 @@ export default function OnlineGame() {
   const handleQuit = () => {
     Alert.alert('Leave Game', 'Are you sure?', [
       { text: 'Cancel', style: 'cancel' },
-      { text: 'Leave', style: 'destructive', onPress: () => router.replace('/') },
+      { text: 'Leave', style: 'destructive', onPress: () => safeNavigate('/') },
     ]);
   };
 
@@ -412,9 +433,9 @@ export default function OnlineGame() {
           winnerName={state.winner}
           winMode={winMode}
           players={state.players.map(p => ({ name: p.name, totalScore: p.totalScore, currentTurnScore: p.currentTurnScore }))}
-          onPlayAgain={() => router.replace('/')}
-          onBackToMenu={() => router.replace('/')}
-          onViewLeaderboard={() => router.replace('/leaderboard')}
+          onPlayAgain={() => safeNavigate('/')}
+          onBackToMenu={() => safeNavigate('/')}
+          onViewLeaderboard={() => safeNavigate('/leaderboard')}
         />
       )}
     </SafeAreaView>
