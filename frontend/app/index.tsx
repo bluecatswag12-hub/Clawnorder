@@ -1,18 +1,57 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Pressable, SafeAreaView, ScrollView } from 'react-native';
 import { router } from 'expo-router';
 import { useGameStore, WinMode, WIN_THRESHOLDS, WIN_MODE_LABELS } from '../store/gameStore';
 import { Ionicons } from '@expo/vector-icons';
 import { useAudio } from '../utils/AudioProvider';
 import { T, WIN_COLORS, WIN_ICONS } from '../utils/theme';
+import { getSession, clearSession, ActiveSession } from '../utils/session';
+import { BACKEND_URL } from '../utils/api';
 
 const WIN_MODES: WinMode[] = ['noobs', 'ogs', 'panthers'];
 
 export default function Index() {
   const { setWinMode, winMode } = useGameStore();
   const { isMuted, toggleMute, playTitleMusic } = useAudio();
+  const [activeSession, setActiveSession] = useState<ActiveSession | null>(null);
 
   useEffect(() => { playTitleMusic(); }, []);
+
+  // Check for active session on mount
+  useEffect(() => {
+    getSession().then(async (session) => {
+      if (!session) return;
+      // Verify room still exists and game isn't over
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/rooms/${session.roomCode}/state`);
+        const data = await res.json();
+        if (data.error || data.winner) {
+          clearSession();
+          return;
+        }
+        setActiveSession(session);
+      } catch {
+        clearSession();
+      }
+    });
+  }, []);
+
+  const rejoinGame = () => {
+    if (!activeSession) return;
+    router.push({
+      pathname: '/online-game',
+      params: {
+        roomCode: activeSession.roomCode,
+        playerId: activeSession.playerId,
+        playerIndex: activeSession.playerIndex,
+      },
+    });
+  };
+
+  const dismissSession = () => {
+    clearSession();
+    setActiveSession(null);
+  };
 
   return (
     <SafeAreaView style={s.container}>
@@ -34,6 +73,27 @@ export default function Index() {
 
         <View style={s.section}>
           <Text style={s.sectionLabel}>Choose Thy Challenge</Text>
+
+          {/* Rejoin Banner */}
+          {activeSession && (
+            <View style={s.rejoinBanner}>
+              <View style={s.rejoinLeft}>
+                <Ionicons name="alert-circle" size={20} color={T.candlelight} />
+                <View>
+                  <Text style={s.rejoinTitle}>Battle in progress!</Text>
+                  <Text style={s.rejoinSub}>Room: {activeSession.roomCode}</Text>
+                </View>
+              </View>
+              <View style={s.rejoinActions}>
+                <Pressable testID="rejoin-btn" style={s.rejoinBtn} onPress={rejoinGame}>
+                  <Text style={s.rejoinBtnText}>Rejoin</Text>
+                </Pressable>
+                <Pressable testID="dismiss-btn" style={s.dismissBtn} onPress={dismissSession}>
+                  <Ionicons name="close" size={16} color={T.textSecondary} />
+                </Pressable>
+              </View>
+            </View>
+          )}
           <View style={s.modeRow}>
             {WIN_MODES.map((mode) => (
               <Pressable key={mode} testID={`mode-${mode}`} style={[s.modeCard, winMode === mode && { borderColor: WIN_COLORS[mode], backgroundColor: `${WIN_COLORS[mode]}20` }]} onPress={() => setWinMode(mode)}>
@@ -101,6 +161,14 @@ const s = StyleSheet.create({
   section: { marginBottom: 24 },
   sectionLabel: { fontSize: 12, fontWeight: '700', color: T.textSecondary, textTransform: 'uppercase', letterSpacing: 2, marginBottom: 10, textAlign: 'center' },
   modeRow: { flexDirection: 'row', gap: 8 },
+  rejoinBanner: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: `${T.candlelight}15`, borderRadius: 12, padding: 12, marginBottom: 14, borderWidth: 1, borderColor: T.candlelight },
+  rejoinLeft: { flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 },
+  rejoinTitle: { fontSize: 14, fontWeight: '700', color: T.candlelight },
+  rejoinSub: { fontSize: 11, color: T.textSecondary, marginTop: 1 },
+  rejoinActions: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  rejoinBtn: { backgroundColor: T.candlelight, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 10 },
+  rejoinBtnText: { fontSize: 13, fontWeight: '700', color: T.bgPrimary },
+  dismissBtn: { width: 28, height: 28, borderRadius: 14, backgroundColor: T.wood, justifyContent: 'center', alignItems: 'center' },
   modeCard: { flex: 1, backgroundColor: T.wood, borderRadius: 12, padding: 12, alignItems: 'center', borderWidth: 2, borderColor: T.woodLight },
   modeName: { fontSize: 11, fontWeight: '700', color: T.silver, marginTop: 4 },
   modeScore: { fontSize: 16, fontWeight: '800', color: T.woodLight, marginTop: 2 },

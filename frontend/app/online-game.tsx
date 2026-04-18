@@ -19,6 +19,7 @@ import { WinMode, WIN_THRESHOLDS, WIN_MODE_LABELS } from '../store/gameStore';
 import { BACKEND_URL } from '../utils/api';
 import { useAudio } from '../utils/AudioProvider';
 import { GameChat } from '../components/GameChat';
+import { saveSession, clearSession } from '../utils/session';
 
 const POLL_INTERVAL = 1500;
 
@@ -75,6 +76,7 @@ export default function OnlineGame() {
     stopPolling();
     stopAll();
     playTitle();
+    clearSession();
     router.replace(path as any);
   };
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -98,6 +100,7 @@ export default function OnlineGame() {
   useEffect(() => {
     mountedRef.current = true;
     playIngameMusic();
+    saveSession({ roomCode, playerId, playerIndex: String(myIndex) });
     fetchState();
     pollRef.current = setInterval(fetchState, POLL_INTERVAL);
     return () => {
