@@ -54,7 +54,7 @@ export default function OnlineGame() {
   const roomCode = params.roomCode || '';
   const playerId = params.playerId || '';
   const myIndex = parseInt(params.playerIndex || '0');
-  const { stopMusic: stopAll, playMusic: playTitle, playIngameMusic, sfxRoll, sfxSelect, sfxScore, sfxCursed, sfxVictory } = useAudio();
+  const { stopAllMusic: stopAll, playTitleMusic: playTitle, playIngameMusic, sfxRoll, sfxSelect, sfxScore, sfxCursed, sfxVictory } = useAudio();
 
   const [state, setState] = useState<RoomState | null>(null);
   const [loading, setLoading] = useState(true);
@@ -429,17 +429,17 @@ export default function OnlineGame() {
         onToggle={() => setChatVisible(!chatVisible)}
       />
 
-      {state.winner && (
+      {state.winner ? (
         <WinnerModal
           visible={true}
-          winnerName={state.winner}
+          winnerName={state.winner || ''}
           winMode={winMode}
-          players={state.players.map(p => ({ name: p.name, totalScore: p.totalScore, currentTurnScore: p.currentTurnScore }))}
+          players={(state.players || []).map(p => ({ name: p.name || '', totalScore: p.totalScore || 0, currentTurnScore: p.currentTurnScore || 0 }))}
           onPlayAgain={() => safeNavigate('/')}
           onBackToMenu={() => safeNavigate('/')}
           onViewLeaderboard={() => safeNavigate('/leaderboard')}
         />
-      )}
+      ) : null}
     </SafeAreaView>
   );
 }

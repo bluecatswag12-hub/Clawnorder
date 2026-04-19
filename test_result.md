@@ -218,13 +218,19 @@ frontend:
     implemented: true
     working: "NA"
     file: "/app/frontend/components/WinnerModal.tsx"
-    stuck_count: 0
-    priority: "medium"
-    needs_retesting: false
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Created winner celebration modal with play again and return to menu options."
+      - working: false
+        agent: "user"
+        comment: "App crashes when the Victory Screen is supposed to display at end of a game."
+      - working: "NA"
+        agent: "main"
+        comment: "Root cause: online-game.tsx destructured useAudio() with wrong keys (stopMusic/playMusic instead of stopAllMusic/playTitleMusic), leaving stopAll and playTitle as undefined. When winner was detected, useEffect called stopAll() which threw and crashed the app. Fixed by renaming destructure to match AudioProvider exports: stopAllMusic: stopAll, playTitleMusic: playTitle."
 
 metadata:
   created_by: "main_agent"
@@ -243,3 +249,5 @@ test_plan:
 agent_communication:
   - agent: "main"
     message: "Dice Rush game MVP completed with local and online multiplayer. Backend includes Socket.IO for real-time gaming. Frontend has complete game flow with animations. Ready for backend testing to verify API endpoints and Socket.IO functionality."
+  - agent: "main"
+    message: "VICTORY SCREEN CRASH FIX (2026-04-19): User reported app crashes when the Victory Screen appears at end of a game. Root cause identified: online-game.tsx line 57 destructured useAudio() with wrong property names `stopMusic` and `playMusic` (these don't exist on AudioProvider). This left `stopAll` and `playTitle` as undefined. The useEffect listening to state?.winner called `stopAll()` on win, crashing with `stopAll is not a function`. Fixed by correcting destructure to `stopAllMusic: stopAll, playTitleMusic: playTitle`. Verified via browser screenshot — all routes (/, /local-setup, /game, /online-game) now load with zero runtime crashes. WinnerModal.tsx already had null-safety guards in place from previous session, so no changes needed there."
