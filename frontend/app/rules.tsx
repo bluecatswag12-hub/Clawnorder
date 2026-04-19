@@ -39,7 +39,7 @@ export default function Rules() {
 
         <Section title="Dragon's Favor">
           <Text style={styles.highlight}>Score all 6 bones in one turn → Dragon's Favor!</Text>
-          <Text style={styles.bodyText}>Choose to hoard your gold and pass, or hoard and continue casting with a fresh set of 6 bones.</Text>
+          <Text style={styles.bodyText}>Choose to Hoard your gold and pass turn (commits points), OR Risk Fresh 6 — reroll all 6 bones with your turn score STILL AT RISK. If you curse on the fresh cast, you lose all accumulated turn gold!</Text>
         </Section>
 
         <Section title="Single Bones">

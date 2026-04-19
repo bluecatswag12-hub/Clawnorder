@@ -206,35 +206,21 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
 
   bankAndContinue: () => {
-    const state = get();
-    const cp = state.players[state.currentPlayerIndex];
-    const newTotal = cp.totalScore + cp.currentTurnScore;
-    const threshold = WIN_THRESHOLDS[state.winMode];
-
-    if (newTotal >= threshold) {
-      set({
-        players: state.players.map((p, i) =>
-          i === state.currentPlayerIndex ? { ...p, totalScore: newTotal, currentTurnScore: 0 } : p
-        ),
-        winner: cp.name,
-      });
-    } else {
-      set({
-        diceValues: [],
-        selectedDice: [],
-        keptDice: [],
-        diceCount: 6,
-        turnPhase: 'rolling',
-        currentRollScore: 0,
-        currentRollBreakdown: [],
-        lastSelectionScore: 0,
-        lastSelectionBreakdown: [],
-        hasRolled: false,
-        players: state.players.map((p, i) =>
-          i === state.currentPlayerIndex ? { ...p, totalScore: newTotal, currentTurnScore: 0 } : p
-        ),
-      });
-    }
+    // Dragon's Favor fresh-6 cast: keep currentTurnScore AT RISK (not banked).
+    // Points only commit when the player chooses to bank (Hoard & Pass).
+    // If they bust on the fresh cast, they lose all accumulated turn score.
+    set({
+      diceValues: [],
+      selectedDice: [],
+      keptDice: [],
+      diceCount: 6,
+      turnPhase: 'rolling',
+      currentRollScore: 0,
+      currentRollBreakdown: [],
+      lastSelectionScore: 0,
+      lastSelectionBreakdown: [],
+      hasRolled: false,
+    });
   },
 
   switchTurn: () => {

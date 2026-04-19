@@ -287,7 +287,7 @@ export default function Game() {
             <View style={styles.hotHandBox}>
               <Ionicons name="flame" size={48} color="#ff9800" />
               <Text style={styles.hotHandText}>DRAGON'S FAVOR!</Text>
-              <Text style={styles.hotHandSub}>All bones scored! Hoard or cast fresh 6!</Text>
+              <Text style={styles.hotHandSub}>All bones scored! Hoard gold or risk fresh 6 (points stay at risk)</Text>
             </View>
           )}
         </View>
@@ -363,7 +363,7 @@ export default function Game() {
               activeOpacity={0.8}
             >
               <Ionicons name="flame" size={24} color="#fff" />
-              <Text style={styles.ctrlText}>Hoard & Continue</Text>
+              <Text style={styles.ctrlText}>Risk Fresh 6</Text>
             </Pressable>
             <Pressable
               testID="bank-pass-btn"

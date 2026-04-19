@@ -428,7 +428,9 @@ async def room_bank_points(room_code: str, req: RoomActionRequest):
 
 @api_router.post("/rooms/{room_code}/bank-continue")
 async def room_bank_and_continue(room_code: str, req: RoomActionRequest):
-    """Hot hand: bank points and continue with fresh 6 dice"""
+    """Dragon's Favor fresh-6 cast: keep current_turn_score AT RISK (not banked).
+    Points only commit when the player chooses to bank (Hoard & Pass).
+    If they bust on the fresh cast, they lose all accumulated turn score."""
     code = room_code.upper().strip()
     if code not in game_rooms:
         return {'error': 'Room not found'}
@@ -437,16 +439,9 @@ async def room_bank_and_continue(room_code: str, req: RoomActionRequest):
     if current['id'] != req.player_id:
         return {'error': 'Not your turn'}
 
-    new_total = current['total_score'] + current['current_turn_score']
-    current['total_score'] = new_total
-    current['current_turn_score'] = 0
-    threshold = WIN_THRESHOLDS.get(room['win_mode'], 3000)
     room['last_action_at'] = datetime.now(timezone.utc).isoformat()
 
-    if new_total >= threshold:
-        room['winner'] = current['name']
-
-    # Reset for fresh roll but SAME player continues
+    # Reset for fresh roll but SAME player continues, turn score stays at risk
     room['dice_values'] = []
     room['dice_count'] = 6
     room['selected_dice'] = []

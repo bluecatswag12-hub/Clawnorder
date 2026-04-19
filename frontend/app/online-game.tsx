@@ -345,7 +345,7 @@ export default function OnlineGame() {
             <View style={styles.hotBox}>
               <Ionicons name="flame" size={48} color="#ff9800" />
               <Text style={styles.hotText}>DRAGON'S FAVOR!</Text>
-              <Text style={styles.hotSub}>All bones scored!</Text>
+              <Text style={styles.hotSub}>Hoard gold or risk fresh 6</Text>
             </View>
           )}
 
@@ -410,7 +410,7 @@ export default function OnlineGame() {
             <>
               <Pressable testID="bank-continue-btn" style={[styles.ctrlBtn, styles.hotBtn]} onPress={handleBankContinue} disabled={acting}>
                 <Ionicons name="flame" size={22} color={styles.ctrlText.color} />
-                <Text style={styles.ctrlText}>Hoard & Continue</Text>
+                <Text style={styles.ctrlText}>Risk Fresh 6</Text>
               </Pressable>
               <Pressable testID="bank-pass-btn" style={[styles.ctrlBtn, styles.bankBtn]} onPress={handleBank} disabled={acting}>
                 <Ionicons name="logo-bitcoin" size={22} color={styles.ctrlText.color} />

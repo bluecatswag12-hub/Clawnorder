@@ -107,27 +107,57 @@ user_problem_statement: "Build a 2-player dice game where players roll 6 dice, s
 backend:
   - task: "Game API endpoints"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Created FastAPI backend with Socket.IO for real-time multiplayer. Includes: create_room, join_room, roll_dice, bank_points events. Game logic for scoring, BUST detection implemented."
+      - working: true
+        agent: "testing"
+        comment: "Verified room CRUD + roll/select/confirm/bank flow end-to-end. /bank correctly commits current_turn_score to total_score, resets turn score to 0, passes turn to next player when below threshold, and respects win threshold per win_mode."
 
   - task: "Socket.IO multiplayer server"
     implemented: true
     working: "NA"
     file: "/app/backend/server.py"
     stuck_count: 0
-    priority: "high"
-    needs_retesting: true
+    priority: "low"
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Socket.IO server configured for async operations with room management, real-time game state sync, and disconnect handling."
+      - working: "NA"
+        agent: "testing"
+        comment: "Backend now uses HTTP REST polling (not Socket.IO) — multiplayer is implemented via /api/rooms/* endpoints and chat polling. No Socket.IO endpoints to test in current server.py."
+
+  - task: "Dragon's Favor /bank-continue mechanic"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Verified updated /bank-continue invariants (16/16 checks passed): (1) total_score unchanged, (2) current_turn_score unchanged AT RISK, (3) dice_count reset to 6, (4) turn_phase reset to 'rolling', (5) currentPlayerIndex unchanged (same player continues), (6) hasRolled reset to False. Also verified: bust on the fresh-6 cast drops current_turn_score back to 0 (player loses all accumulated turn points) and total_score remains unchanged."
+
+  - task: "Royals win_mode threshold (10000)"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Confirmed WIN_THRESHOLDS includes 'royals': 10000. Created room with win_mode='royals', accumulated total_score=5100 for Alice via repeated bank cycles, and verified she is NOT declared winner (winner=None). Same total would have triggered a win under 'noobs' (1500) — confirming the threshold is correctly mode-sensitive."
 
 frontend:
   - task: "Home screen with mode selection"
@@ -240,8 +270,8 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Game API endpoints"
-    - "Socket.IO multiplayer server"
+    - "Dragon's Favor /bank-continue mechanic"
+    - "Royals win_mode threshold (10000)"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -251,3 +281,5 @@ agent_communication:
     message: "Dice Rush game MVP completed with local and online multiplayer. Backend includes Socket.IO for real-time gaming. Frontend has complete game flow with animations. Ready for backend testing to verify API endpoints and Socket.IO functionality."
   - agent: "main"
     message: "VICTORY SCREEN CRASH FIX (2026-04-19): User reported app crashes when the Victory Screen appears at end of a game. Root cause identified: online-game.tsx line 57 destructured useAudio() with wrong property names `stopMusic` and `playMusic` (these don't exist on AudioProvider). This left `stopAll` and `playTitle` as undefined. The useEffect listening to state?.winner called `stopAll()` on win, crashing with `stopAll is not a function`. Fixed by correcting destructure to `stopAllMusic: stopAll, playTitleMusic: playTitle`. Verified via browser screenshot — all routes (/, /local-setup, /game, /online-game) now load with zero runtime crashes. WinnerModal.tsx already had null-safety guards in place from previous session, so no changes needed there."
+  - agent: "testing"
+    message: "Backend Dragon's Favor /bank-continue mechanic verified end-to-end (16/16 checks passed in /app/backend_test.py). Confirmed all 6 invariants on the new behaviour: total_score unchanged, current_turn_score unchanged (AT RISK), dice_count=6, turn_phase='rolling', currentPlayerIndex unchanged, hasRolled=False. Bust on the fresh-cast correctly drops current_turn_score to 0. /bank still commits points to total_score, resets turn score, and passes turn. New 'royals' win_mode (threshold 10000) verified — Alice with total_score=5100 was correctly NOT declared winner (would have won under 'noobs' threshold 1500). Note: Socket.IO task in test_result.md is stale — server.py uses HTTP REST polling now, not Socket.IO. Marked accordingly."
