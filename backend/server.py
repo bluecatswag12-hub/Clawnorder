@@ -247,7 +247,7 @@ def get_room_state_for_client(room: dict) -> dict:
         'lastActionAt': room['last_action_at'],
     }
 
-WIN_THRESHOLDS = {'noobs': 1500, 'ogs': 3000, 'panthers': 5000}
+WIN_THRESHOLDS = {'noobs': 1500, 'ogs': 3000, 'panthers': 5000, 'royals': 10000}
 
 @api_router.post("/rooms/create")
 async def create_room(req: CreateRoomRequest):

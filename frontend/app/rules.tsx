@@ -75,7 +75,8 @@ export default function Rules() {
         <Section title="Thy Challenge">
           <Rule left="Peasants" right="1,500 gold" color="#2E7D32" />
           <Rule left="Knights" right="3,000 gold" color="#FF9E3D" />
-          <Rule left="Royals" right="5,000 gold" color="#D4AF37" />
+          <Rule left="Lords" right="5,000 gold" color="#8B0000" />
+          <Rule left="Royals" right="10,000 gold" color="#7B1FA2" />
         </Section>
 
         <Section title="CURSED!">

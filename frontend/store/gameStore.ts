@@ -2,10 +2,10 @@ import { create } from 'zustand';
 import { rollDice, calculateSelectedScore, hasAnyScoringDice } from '../utils/gameLogic';
 
 export type GameMode = 'menu' | 'local' | 'online';
-export type WinMode = 'noobs' | 'ogs' | 'panthers';
+export type WinMode = 'noobs' | 'ogs' | 'panthers' | 'royals';
 
-export const WIN_THRESHOLDS: Record<WinMode, number> = { noobs: 1500, ogs: 3000, panthers: 5000 };
-export const WIN_MODE_LABELS: Record<WinMode, string> = { noobs: 'Peasants', ogs: 'Knights', panthers: 'Royals' };
+export const WIN_THRESHOLDS: Record<WinMode, number> = { noobs: 1500, ogs: 3000, panthers: 5000, royals: 10000 };
+export const WIN_MODE_LABELS: Record<WinMode, string> = { noobs: 'Peasants', ogs: 'Knights', panthers: 'Lords', royals: 'Royals' };
 
 export interface Player {
   name: string;

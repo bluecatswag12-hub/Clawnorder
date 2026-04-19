@@ -28,6 +28,7 @@ export const WIN_COLORS: Record<string, string> = {
   noobs: '#2E7D32',
   ogs: '#D4AF37',
   panthers: '#8B0000',
+  royals: '#7B1FA2',
 };
 
 // Win mode icons
@@ -35,4 +36,5 @@ export const WIN_ICONS: Record<string, string> = {
   noobs: 'flag',
   ogs: 'shield',
   panthers: 'ribbon',
+  royals: 'diamond',
 };

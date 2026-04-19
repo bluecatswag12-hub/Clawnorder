@@ -8,7 +8,7 @@ import { T, WIN_COLORS, WIN_ICONS } from '../utils/theme';
 import { getSession, clearSession, ActiveSession } from '../utils/session';
 import { BACKEND_URL } from '../utils/api';
 
-const WIN_MODES: WinMode[] = ['noobs', 'ogs', 'panthers'];
+const WIN_MODES: WinMode[] = ['noobs', 'ogs', 'panthers', 'royals'];
 
 export default function Index() {
   const { setWinMode, winMode } = useGameStore();

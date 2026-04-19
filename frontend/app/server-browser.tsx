@@ -17,7 +17,7 @@ interface ActiveRoom {
   has_winner: boolean;
 }
 
-const MODE_COLORS: Record<string, string> = { noobs: '#2E7D32', ogs: '#FF9E3D', panthers: '#D4AF37' };
+const MODE_COLORS: Record<string, string> = { noobs: '#2E7D32', ogs: '#FF9E3D', panthers: '#8B0000', royals: '#7B1FA2' };
 
 export default function ServerBrowser() {
   const [rooms, setRooms] = useState<ActiveRoom[]>([]);
