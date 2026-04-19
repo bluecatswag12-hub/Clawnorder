@@ -4,10 +4,10 @@ import {
   Text,
   StyleSheet,
   Pressable,
-  SafeAreaView,
   ScrollView,
   Alert,
 } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { useGameStore, WIN_THRESHOLDS, WIN_MODE_LABELS } from '../store/gameStore';
 import { BACKEND_URL } from '../utils/api';
@@ -20,6 +20,7 @@ import { recordMilestone } from './dice-shop';
 import { useAudio } from '../utils/AudioProvider';
 
 export default function Game() {
+  const insets = useSafeAreaInsets();
   const {
     players,
     currentPlayerIndex,
@@ -293,7 +294,7 @@ export default function Game() {
       </ScrollView>
 
       {/* Controls */}
-      <View style={styles.controls}>
+      <View style={[styles.controls, { paddingBottom: Math.max(insets.bottom, 12) }]}>
         {turnPhase === 'selecting' && (
           <>
             <Pressable

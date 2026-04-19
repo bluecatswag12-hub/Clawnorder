@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { View, Text, StyleSheet, TextInput, Pressable, FlatList, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, TextInput, Pressable, FlatList, Keyboard, Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { BACKEND_URL } from '../utils/api';
 
@@ -20,11 +21,27 @@ interface GameChatProps {
 }
 
 export const GameChat: React.FC<GameChatProps> = ({ roomCode, playerId, playerNames, visible, onToggle }) => {
+  const insets = useSafeAreaInsets();
   const [messages, setMessages] = useState<ChatMsg[]>([]);
   const [input, setInput] = useState('');
   const [unread, setUnread] = useState(0);
+  const [kbHeight, setKbHeight] = useState(0);
   const seenKeys = useRef(new Set<string>());
   const flatRef = useRef<FlatList>(null);
+
+  // Track keyboard height so the chat panel floats above it
+  useEffect(() => {
+    const showEvt = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvt = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+    const showSub = Keyboard.addListener(showEvt, (e) => {
+      setKbHeight(e.endCoordinates?.height || 0);
+    });
+    const hideSub = Keyboard.addListener(hideEvt, () => setKbHeight(0));
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
 
   const fetchMessages = useCallback(async () => {
     try {
@@ -80,7 +97,7 @@ export const GameChat: React.FC<GameChatProps> = ({ roomCode, playerId, playerNa
   return (
     <>
       {/* Toggle Button */}
-      <Pressable testID="chat-toggle" style={styles.toggleBtn} onPress={onToggle}>
+      <Pressable testID="chat-toggle" style={[styles.toggleBtn, { bottom: 80 + insets.bottom }]} onPress={onToggle}>
         <Ionicons name={visible ? 'chatbubbles' : 'chatbubbles-outline'} size={22} color="#F4E3C5" />
         {unread > 0 && !visible && (
           <View style={styles.badge}><Text style={styles.badgeText}>{unread}</Text></View>
@@ -89,10 +106,10 @@ export const GameChat: React.FC<GameChatProps> = ({ roomCode, playerId, playerNa
 
       {/* Chat Panel */}
       {visible && (
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.chatPanel}>
+        <View style={[styles.chatPanel, { bottom: (kbHeight > 0 ? kbHeight + 10 : 70 + insets.bottom) }]}>
           <View style={styles.chatHeader}>
             <Text style={styles.chatTitle}>Game Chat</Text>
-            <Pressable onPress={onToggle}><Ionicons name="close" size={22} color="#C8AC70" /></Pressable>
+            <Pressable onPress={() => { Keyboard.dismiss(); onToggle(); }}><Ionicons name="close" size={22} color="#C8AC70" /></Pressable>
           </View>
           <FlatList
             ref={flatRef}
@@ -124,7 +141,7 @@ export const GameChat: React.FC<GameChatProps> = ({ roomCode, playerId, playerNa
               <Ionicons name="send" size={18} color="#F4E3C5" />
             </Pressable>
           </View>
-        </KeyboardAvoidingView>
+        </View>
       )}
     </>
   );

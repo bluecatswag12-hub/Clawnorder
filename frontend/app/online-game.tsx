@@ -4,11 +4,11 @@ import {
   Text,
   StyleSheet,
   Pressable,
-  SafeAreaView,
   ScrollView,
   Alert,
   ActivityIndicator,
 } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Dice } from '../components/Dice';
 import { Ionicons } from '@expo/vector-icons';
@@ -50,6 +50,7 @@ interface RoomState {
 }
 
 export default function OnlineGame() {
+  const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{ roomCode: string; playerId: string; playerIndex: string }>();
   const roomCode = params.roomCode || '';
   const playerId = params.playerId || '';
@@ -360,7 +361,7 @@ export default function OnlineGame() {
 
       {/* Controls (only show for current player) */}
       {isMyTurn && (
-        <View style={styles.controls}>
+        <View style={[styles.controls, { paddingBottom: Math.max(insets.bottom, 12) }]}>
           {state.turnPhase === 'selecting' && (
             <>
               <Pressable
