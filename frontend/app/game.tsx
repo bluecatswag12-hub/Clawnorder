@@ -21,6 +21,7 @@ import { useAudio } from '../utils/AudioProvider';
 
 export default function Game() {
   const insets = useSafeAreaInsets();
+  const { stopAllMusic, playTitleMusic, playIngameMusic, sfxRoll, sfxScore, sfxCursed, sfxVictory, sfxSelect } = useAudio();
   const {
     players,
     currentPlayerIndex,
@@ -92,8 +93,6 @@ export default function Game() {
   };
 
   const handlePlayAgain = () => resetGame();
-
-  const { stopAllMusic, playTitleMusic, playIngameMusic, sfxRoll, sfxScore, sfxCursed, sfxVictory, sfxSelect } = useAudio();
 
   const handleBackToMenu = () => {
     resetGame();
